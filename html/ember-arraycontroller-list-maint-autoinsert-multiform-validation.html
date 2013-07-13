@@ -1,0 +1,146 @@
+<html>
+<head>
+	<title>X ArrayController/Lineitem Forms</title>
+	<script src="libs/jquery-1.9.1.min.js"></script>
+	<script src="libs/jquery.validate.min.js"></script>
+	<script src="libs/handlebars.js"></script>
+	<script src="libs/ember-1.0.0-rc.1.js"></script>
+</head>
+<body>
+	<h4>ArrayController, add/delete array objects, form validation</h4>
+	<i>demonstrates an Ember application with an array controller, rendering array data on Application controller, validating multiple forms</i>
+	
+	<script type="text/x-handlebars">
+		<p>Main controller = {{ controller }}</p>
+		{{#each user in controller }}
+			{{ partial "userline" }}
+		{{/each}}
+		<br/>
+		<br/><button name="insertButton" {{ action "insert" }}>Insert</button>
+		<br/><button name="validateAll" {{ action "validateAll" }}>Validate All</button>
+		<br/><br/><hr>Notes:
+		<ol>
+			<li>ApplicationController</li>
+			<li>User line-item implemented in partial template</li>
+			<li>Each partial template uses form + jQuery validation</li>
+			<li>isValid property must be bound in order for auto-insert stuff to work?? {{ user.isValid }}</li>
+		</ol>
+	</script>
+
+	<script type="text/x-handlebars" id="_userline">
+		<br/>
+		<form>
+		{{#with user }}
+		Controller for line item = {{ controller }}
+		{{ id }}
+
+		{{ view App.TextFieldNew valueBinding="firstName" name="firstName" }}
+		{{ view App.TextFieldNew valueBinding="lastName" name="lastName"}}
+		{{#if isValidated }}
+		<a href="#" {{ action "delete" this}} >X</a>
+		{{/if }}
+		<div style="display:none">
+		{{ isValid }}
+		{{/with }}
+		</form>
+		</div>
+	</script>
+
+</body>
+<script>
+
+var App = Em.Application.create({});
+
+App.TextFieldNew = Ember.TextField.extend({
+	attributeBindings: [ 'name', 'data-validation-group' ]
+});
+
+App.ApplicationController = Em.ArrayController.extend({
+	init: function() {
+		console.log("in ApplicationController init");
+	},
+	insert: function() {
+		this.get('content').pushObject(App.User.create());
+		console.log("inserted new user...");
+	},
+	delete: function(model) {
+		console.log("deleting " + JSON.stringify(model));
+		this.get('content').removeObject(model);
+	},
+	validateAll: function(){
+		var forms = $('form');
+		forms.each(function(index, instance){
+			console.log("validating form " + index);
+			if($(instance).valid()) {
+				console.log("Form " + index + " is valid");
+			}
+			else {
+				console.log("Form " + index + " is NOT VALID");
+			}
+		});
+	}
+});
+
+App.ApplicationRoute = Em.Route.extend({
+	model: function() {
+		console.log("in arrayapproute model");
+		var m = [
+			App.User.create({"id":1, "firstName":"Kate","lastName":"Lawrence"}),
+			App.User.create()
+		];
+		return m;
+	}
+});
+
+App.setValidation = function() {
+	var forms = $('form');
+	forms.each(function(index, instance){
+		console.log("Hooking validation to form " + index);
+		$(instance).validate({
+			rules: {
+				firstName: { required: true },
+				lastName: { required: true }
+			}
+		});
+	});
+};
+
+App.ApplicationView = Ember.View.extend({
+	controller: App.ApplicationController,
+	didInsertElement: function(){
+		console.log('in ArrayappView didInsertElement');
+		
+		$('body').on('USER-IS-VALID', function(evt){
+			console.log('USER-IS-VALID triggered!');
+			$('button[name="insertButton"]').click();
+			App.setValidation();
+		});
+		$('button[name="insertButton"]').hide();
+
+		App.setValidation();
+	}
+});
+
+
+App.User = Ember.Object.extend({
+	id: 0,
+	firstName: '',
+	lastName: '',
+	isValid: function() {
+		var valid = !this.get('firstName') == '' && !this.get('lastName') == '';
+		if (valid && !this.get('validated')) {
+			$('body').trigger("USER-IS-VALID");
+			this.set('validated', true);
+		};
+		return valid;
+	}.property('firstName','lastName').volatile(),
+	validated: false,
+	isValidated: function() {
+		return this.validated;
+	}.property('validated')
+})
+
+
+</script>
+</html>
+

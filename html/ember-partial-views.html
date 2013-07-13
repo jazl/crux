@@ -1,0 +1,165 @@
+<html>
+<head>
+	<title>EmberPartials</title>
+	<script src="libs/jquery-1.9.1.min.js"></script>
+	<script src="libs/jquery.validate.min.js"></script>
+	<script src="libs/handlebars.js"></script>
+	<script src="libs/ember-1.0.0-rc.1.js"></script>
+	<script src="libs/ember-data.js"></script>
+</head>
+<body>
+	<h4>Partial Views</h4>
+	<i></i>
+	
+	<script type="text/x-handlebars" data-template-name="application">
+		<form id="mainform">
+			{{#each user in controller}}
+				<br/>
+				{{ user.title }}
+				{{ view Ember.TextField valueBinding="user.editLevel" }}
+				{{ view Ember.TextField valueBinding="user.firstName" name="firstName" }}
+				{{ view Ember.TextField valueBinding="user.lastName" name="lastName" }}
+				{{ view Ember.TextField valueBinding="user.email" name="email" }}
+				{{ view Practice.EditLevelSelect valueBinding="user.editLevel" }}
+				{{ view Ember.Checkbox checkedBinding="user.isAdmin" name="isAdmin" }}
+			{{/each}}
+		</form>
+	</script>	
+</body>
+<script>
+
+var App = Em.Application.create({});
+
+App.ApplicationRoute = Em.Route.extend({
+	model: function(){
+		return App.User.find();
+	}
+});
+
+App.ApplicationController = Em.ArrayController.extend({
+	save: function(model){
+		alert('in ApplicationController save.');
+	}
+});
+
+App.UserEditRoute = Em.Route.extend({
+	model: function(){
+		console.log("in UserEditRoute....");
+		return App.User.createRecord();
+	}
+});
+
+App.UserEditController = Em.Object.extend({
+	userTitle: function() {
+		return "Dr";
+	}.property()
+});
+
+App.UserEditView = Em.View.extend({
+	controller: App.UserEditController,
+	templateName: 'useredit-control',
+	didInsertElement: function() {
+		console.log('in view didInsertElement...');
+		var frm = $('#mainform');
+		frm.validate({
+			rules: {
+				firstName: { required: true },
+				lastName: { required: true }
+			}
+		});
+	},
+	click: function(event) { alert('hai from view'); }
+});
+
+App.TextFieldNew = Ember.TextField.extend({
+	attributeBindings: [ 'name', 'data-validation-group' ]
+});
+
+App.Store = DS.Store.extend({
+	adapter: 'DS.FixtureAdapter',
+	revision: 11
+});
+
+App.User = DS.Model.extend({
+	firstName: DS.attr('string'),
+	lastName: DS.attr('string'),
+	email: DS.attr('string'),
+	editLevel: DS.attr('number'),
+	isAdmin: DS.attr('boolean'),
+	title: function() {
+		return this.get('editLevel') === 1 ? "Dr" : "";
+	}.property()
+});
+
+App.User.FIXTURES = [
+	{
+		id:1,
+		firstName: 'Marcy',
+		lastName:'Darcy',
+		email:'editLeveling@editLeveling.com',
+		editLevel: 1,
+		isAdmin:false
+	},
+	{
+		id:2,
+		firstName: 'Fred',
+		lastName:'Fredrickson',
+		email:'ff@ff.org',
+		editLevel: 2,
+		isAdmin:true
+	},
+	{
+		id:3,
+		firstName: 'Mary',
+		lastName:'Smith',
+		email:'mary_smith@smithandsons.com',
+		editLevel: 3,
+		isAdmin:false
+	},
+	{
+		id:4,
+		firstName: 'Kevin',
+		lastName:'Kevinson',
+		email:'kevink@theprovidersgroup.org',
+		editLevel: 3,
+		isAdmin:false
+	}
+];
+
+var Practice = {};
+Practice.CustomControls = {};
+
+//******************************************************
+// Quick timezone select list
+// Example Use (from template)
+// {{ view Practice.EditLevelSelect valueBinding="editLevel" id="EditLevel" name="EditLevel" }}
+//******************************************************
+Practice.EditLevelSelect = Ember.Select.extend({
+    attributeBindings: [ 'name', 'data-validation-group' ],
+    contentBinding: "Practice.CustomControls.editLevelController",
+    selectionBinding: "Practice.CustomControls.selectedEditLevelController.editLevel",
+    optionLabelPath: "content.name",
+    optionValuePath: "content.code"
+});
+
+Practice.CustomControls.EditLevel = Ember.Object.extend({
+    id: null,
+    code: null,
+    name: null
+});
+
+Practice.CustomControls.selectedEditLevelController = Ember.Object.create({
+    editLevel: null
+});
+
+// TODO: get this from a table or fill in the remaining countries
+Practice.CustomControls.editLevelController = Ember.ArrayController.create({
+    content: [
+        Practice.CustomControls.EditLevel.create({id: 1, code: '1', name: 'Provider'}),
+        Practice.CustomControls.EditLevel.create({id: 2, code: '2', name: 'Nurse'}),
+        Practice.CustomControls.EditLevel.create({id: 3, code: '3', name: 'Staff'})
+    ]
+});
+</script>
+
+</html>

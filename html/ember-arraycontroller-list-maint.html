@@ -1,0 +1,67 @@
+<html>
+<head>
+	<title>X ArrayController, object literal</title>
+	<script src="libs/jquery-1.9.1.min.js"></script>
+	<script src="libs/handlebars.js"></script>
+	<script src="libs/ember-1.0.0-rc.1.js"></script>
+</head>
+<body>
+	<h4>ArrayController, add/delete array objects</h4>
+	<i>demonstrates an Ember application with an array controller, minus Ember Data</i>
+	
+	<script type="text/x-handlebars" data-template-name="arrayapp">
+		{{ controller }}
+		{{#each user in controller }}
+			<br/>{{ user.id }}
+			{{ view Ember.TextField valueBinding="user.firstName" }}
+			{{ view Ember.TextField valueBinding="user.lastName" }}
+			<a href="#" {{ action "delete" user}}>X</a>
+			<a href="#" onclick="App.ArrayappController.deleteByIndex(1)">ByIndex</a>
+		{{/each}}
+		<hr>
+		<a href="#" {{ action "insert" }}>Insert</a>
+	</script>
+
+</body>
+<script>
+
+var App = Em.Application.create({});
+
+App.Router.map(function(){
+	this.resource("arrayapp", { path: '/'});
+});
+
+App.ArrayappController = Em.ArrayController.extend({
+	init: function() {
+		console.log("in ArrayappController init");
+	},
+	insert: function() {
+		this.get('content').pushObject({"id":0, "firstName":"","lastName":""});
+		console.log("inserted new user...");
+	},
+	delete: function(model) {
+		console.log("deleting " + JSON.stringify(model));
+		this.get('content').removeObject(model);
+	},
+	deleteByIndex: function(index) {
+		alert('deleting index ' + index);
+		return false;
+	}
+});
+
+App.ArrayappRoute = Em.Route.extend({
+	model: function() {
+		console.log("in arrayapproute model");
+		var m = [
+			{"id":1, "firstName":"Kate","lastName":"Lawrence"},
+			{"id":2, "firstName":"Sharon","lastName":"Gillette"},
+			{"id":3, "firstName":"Eva","lastName":"Piotrowski"},
+			{"id":0, "firstName":"","lastName":""}
+		];
+		return m;
+	}
+});
+
+</script>
+</html>
+

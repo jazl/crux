@@ -1,0 +1,132 @@
+<html>
+<head>
+	<title>X Ember/jQV</title>
+	<script src="libs/jquery-1.9.1.min.js"></script>
+	<script src="libs/jquery.validate.min.js"></script>
+	<script src="libs/handlebars.js"></script>
+	<script src="libs/ember-1.0.0-rc.1.js"></script>
+	<script src="libs/jquery.maskedinput.min.js"></script>
+</head>
+<body>
+	<h4>jQuery Validation 'n Ember</h4>
+	<i>Demonstrates use of jQuery Validation plugin w/ Ember, 'cuz a form ain't gonna validate itself</i>
+
+	<script type="text/x-handlebars" data-template-name="application">
+		{{ outlet }}
+		<hr/>
+		{{ render App.AnotherView }}
+	</script>
+	<hr/>
+
+	<script type="text/x-handlebars" id="another-tmpl">
+		<h5>Another template:</h5>
+		<form id="anotherForm">
+			First Name: {{ view App.ValidatingTextField
+								valueBinding="firstName" 
+								id="firstName" 
+								name="firstName" }}
+			<br/>Last Name: {{ view App.ValidatingTextField
+								valueBinding="lastName"
+								id="lastName"
+								name="lastName" }}
+			<br/>Phone: {{ view App.ValidatingTextField 
+								valueBinding="phone" 
+								id="phone" 
+								name="phone" }}
+			<br/>Country: {{ view Ember.Select
+								contentBinding='App.countriesBindings'
+								valueBinding="country" 
+								id="country" 
+								name="country" 
+							    optionLabelPath="content.text"
+							    optionValuePath="content.code"
+							}}
+			<br/><input type="submit">
+		</form>
+		<br/>Controller = {{ controller }}
+	</script>
+
+</body>
+<script>
+
+var App = Em.Application.create({});
+
+App.countriesBindings = Ember.ArrayController.create({
+	content:[
+		Ember.Object.create({code:"US",text:"United States"}),
+		Ember.Object.create({code:"AU",text:"Australia"})
+	]
+});
+
+App.ValidatingTextField = Ember.TextField.extend({
+	attributeBindings: [ 'name', 'data-validation-group' ]
+});
+
+App.Router.map(function(){
+	this.resource('employees', { path:'/' });
+	this.resource('another', { path:'/' });
+})
+
+App.AnotherRoute = Em.Route.extend({
+ 	model: function() {
+ 		return Em.Object.create({
+ 			firstName: 'Kate',
+ 			lastName: 'Smith',
+ 			phone: '4155551212',
+ 			country: 'US'
+ 		});
+ 	}
+ });
+
+App.AnotherController = Em.ObjectController.extend({});
+
+App.AnotherView = Em.View.extend({
+	templateName: 'another-tmpl',
+	didInsertElement: function() {
+		
+		$.mask.definitions['X']="[A-Za-z0-9 '-]";
+
+		console.log('in view AnotherView didInsertElement...');
+		var frm = $('#anotherForm');
+		frm.validate({
+			rules: {
+				firstName: { required: true },
+				phone: { required: true }
+			}
+		});
+		frm.submit(function(event){
+			console.log('submitting...');
+			console.log('valid? ' + frm.valid());
+			event.preventDefault();
+		});
+		$('#phone').mask('(999)999-9999');
+		$('#changeMask').on('click', function(evt) {
+			$('#phone').mask('999 999-9999');
+			evt.preventDefault();
+		})
+		$('#country').on('change', function(evt) {
+			evt.preventDefault();
+			if(evt.target.value != "US"){
+				$('#phone').mask('XXXXXXXXXXXXXXXXXXXX', {placeholder:''});
+			}
+			else{
+				$('#phone').mask('(999) 999-9999');
+			}
+		})
+
+		// Add rule later
+		$('#lastName').rules("add", { required: true });
+
+	}
+	//click: function(event) { alert('hai from view'); }
+});
+
+</script>
+
+<script>
+$(document).ready(function() {
+
+});
+</script>
+</html>
+

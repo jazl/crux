@@ -1,0 +1,71 @@
+<html>
+<head>
+	<title>ObjectController, no ED</title>
+	<script src="libs/jquery-1.9.1.min.js"></script>
+	<script src="libs/jquery.validate.min.js"></script>
+	<script src="libs/handlebars.js"></script>
+	<script src="libs/ember-1.0.0-rc.1.js"></script>
+	<script src="libs/ember-data.js"></script>
+</head>
+<body>
+	<h4>ObjectController without Ember Data</h4>
+	<i>demonstrates an Ember application with an object controller, minus Ember Data</i>
+	<script type="text/x-handlebars">
+	{{ controller }}
+
+	<br/>pageName = {{ pageName }}
+	<br/>className = {{ className }}
+
+	</script>	
+</body>
+<script>
+
+var App = Em.Application.create({});
+
+// extending the application route so we can pass back a model
+App.ApplicationRoute = Em.Route.extend({
+	model: function(){
+		// TODO: if we were using Ember Data we'd be executing the code below to return a single object
+		//return App.Page.find(1);
+
+		// ... but since we're not, all we've got is a simple object
+		return Ember.Object.create({id:1, pageName:'page 1', className: 'PAGE1'});
+	}
+});
+
+// extending the application controller so we can define actions here
+App.ApplicationController = Em.ObjectController.extend({
+	previous: function(model){
+		var i = this.get('index');
+		this.set('index', --i);
+	},
+	next: function(model){
+		var i = this.get('index');
+		this.set('index', ++i);
+	}
+});
+
+// TODO: Below is what Ember Data structures would look like
+// TODO: Below is what Ember Data structures would look like
+// TODO: Below is what Ember Data structures would look like
+
+// Model
+// App.Store = DS.Store.extend({
+//     revision: 11,
+//     adapter: 'DS.FixtureAdapter'
+// });
+
+// App.Page = DS.Model.extend({
+// 	pageName: DS.attr('string'),
+// 	className: DS.attr('string')
+// });
+
+// App.Page.FIXTURES = [
+//     {id:1, pageName:'page 1', className: 'PAGE1'},
+//     {id:2, pageName:'second page', className: 'PAGE2'},
+//     {id:3, pageName:'Third_page', className: 'PAGE3'}
+// ];
+
+</script>
+</html>
+

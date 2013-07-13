@@ -1,0 +1,38 @@
+<html>
+<head>
+	<title>X ArrayController push/remove object</title>
+	<script src="libs/jquery-1.9.1.min.js"></script>
+	<script src="libs/handlebars.js"></script>
+	<script src="libs/ember-1.0.0-rc.1.js"></script>
+</head>
+<body>
+	<h4>ArrayController with 2-way binding</h4>
+	<i>demonstrates an Ember application with an array controller, pushObject/removeObject, using POJOs</i>
+	
+</body>
+<script>
+
+// January 1, 2012 (Chicago, IL)
+var firstOfYear = new Date(2012, 0, 1),
+    // 6 Hour offset (before DST change)
+    hoursOffset = firstOfYear.getTimezoneOffset() / 60; 
+ 
+// April 1, 2012 (Chicago, IL)
+var afterDST = new Date(2012, 3, 1),
+    // 5 Hour offset (after DST change)
+    hoursOffset = afterDST.getTimezoneOffset() / 60;
+ 
+// November 16, 2012 (Chicago, IL)
+var postDate = new Date(2012, 10, 16),
+    // 6 Hour offset (after DST change back)
+    hoursOffset = postDate.getTimezoneOffset() / 60;
+
+    var dt = new Date();
+    document.write("<hr>timezoneoffset = " + new Date("1/1/" + dt.getYear()).getTimezoneOffset() * -1);
+    document.write("<hr>7/1/2013 = " + new Date("7/1/2013").getTimezoneOffset());
+    document.write("<hr>1/1/2013 = " + new Date("1/1/2013").getTimezoneOffset());
+    document.write("<hr>12/31/2013 = " + new Date("12/31/2013").getTimezoneOffset());
+	
+</script>
+</html>
+

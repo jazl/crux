@@ -1,0 +1,68 @@
+<html>
+<head>
+	<title>Ember/jQV</title>
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/rc5/handlebars.js"></script>
+	<script src="../libs/rc5/ember-1.0.0-rc.5.js"></script>
+</head>
+<body>
+	<h4>Tom Dale example</h4>
+	<i>from NDC 2013 presentation</i>
+	<script type="text/x-handlebars">
+		<h4>The app</h4>
+		{{outlet}}
+	</script>
+	<script type="text/x-handlebars" id="files">
+		<br/>Files:
+		<table>
+		{{#each file in model}}
+			<tr>
+				<td>{{file.id}}</td>
+				<td>{{file.title}}</td>
+				<td>{{file.author}}</td>
+			</tr>
+		{{/each}}
+		</table>
+	</script>	
+</body>
+<script>
+
+
+var App = Ember.Application.create({});
+
+App.Router.map(function(){
+	this.resource('files');
+	this.resource('file', { path: '/file/:file_id' });
+});
+
+App.FilesRoute = Ember.Route.extend({
+	model: function() {
+		return FILES;
+	}
+});
+
+App.FileRoute = Ember.Route.extend({
+	model: function(params) {
+		var id = params.file_id;
+		return FILES[id];
+	}
+});
+
+window.FILES = [{
+	id: 'rails-is-omakase',
+	title: 'Rails is Omakase',
+	author: 'D2H',
+	contents: 'these are the contents'
+}, {
+	id: 'why-ruby',
+	title: 'Why Ruby?',
+	author: 'CodingHorror',
+	contents: 'Why Ruby, indeed???'
+}];
+
+FILES.forEach(function(file) {
+	FILES[file.id] = file;
+})
+</script>
+</html>
+

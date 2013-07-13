@@ -1,0 +1,103 @@
+<html>
+<head>
+	<title>ArrayController, no ED</title>
+	<script src="libs/jquery-1.9.1.min.js"></script>
+	<script src="libs/jquery.validate.min.js"></script>
+	<script src="libs/handlebars.js"></script>
+	<script src="libs/ember-1.0.0-rc.1.js"></script>
+	<script src="libs/ember-data.js"></script>
+</head>
+<body>
+	<h4>ArrayController without Ember Data</h4>
+	<i>demonstrates an Ember application with an array controller, minus Ember Data</i>
+	<script type="text/x-handlebars" data-template-name="arrayapp">
+	{{ controller }}
+	{{#each page in controller }}
+	<br/>{{ page.id }} = {{ page.pagename }}, {{ page.classname }}
+	{{/each}}
+	</script>	
+</body>
+<script>
+
+var App = Em.Application.create({});
+
+App.Store = DS.Store.extend({
+    revision: 11,
+    adapter: 'DS.FixtureAdapter'
+});
+
+DS.RESTAdapter.reopen({
+    url: 'http://localhost/EhrServiceWrapper/api'
+});
+
+App.Page = DS.Model.extend({
+	pagename: DS.attr('string'),
+	classname: DS.attr('string')
+});
+
+App.Page.FIXTURES = [
+    {id:1, pagename:'page 1', classname: 'PAGE1'},
+    {id:2, pagename:'second page', classname: 'PAGE2'},
+    {id:3, pagename:'Third_page', classname: 'PAGE3'}
+];
+
+App.Router.map(function(){
+	this.resource("arrayapp", { path: '/:application_command'});
+});
+
+// extending the application route so we can pass back a model
+App.ArrayappRoute = Em.Route.extend({
+	model: function(params){
+
+		var data = {};
+		var parm = params.application_command;
+		console.log('parm = ' + parm);
+		if(parm==="fixture")
+		{
+			console.log('Getting data from fixture');
+			// use Ember Data fixture
+			data = App.Page.find();
+		}
+		else {
+			if (parm==="rest") {
+				console.log('Getting data from REST service');
+				data = App.Page.find();
+			}
+			else {
+				console.log('Getting data from static object');
+				// ... return a simple object array
+				data = [
+					{
+						"id":1,
+						"classname": "PAGE1",
+						"pagename": "page 1"
+					},
+					{
+						"id": 2,
+						"classname": "PAGE2",
+						"pagename": "second page"
+					},
+					{
+						"id": 3,
+						"classname": "PAGE3",
+						"pagename": "Third_page"
+					}
+				];
+			}
+		}
+
+		return data;
+	}
+});
+
+// extending the application controller
+//App.ApplicationController = Em.ArrayController.extend({});
+
+// TODO: Below is what Ember Data structures would look like
+// TODO: Below is what Ember Data structures would look like
+// TODO: Below is what Ember Data structures would look like
+
+
+</script>
+</html>
+

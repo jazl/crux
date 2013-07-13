@@ -1,0 +1,43 @@
+<html>
+<head>
+	<title>X WTF is this?</title>
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/rc1/handlebars.js"></script>
+	<script src="../libs/rc1/ember-1.0.0-rc.1.js"></script>
+</head>
+<body>
+	<h4>ArrayController, add/delete array objects</h4>
+	<i>demonstrates an Ember application with an array controller</i>
+	<i>As of rc5 "this" in action helper is the model, not the controller</i>
+	
+	<script type="text/x-handlebars">
+		<br/>"controller" is {{ controller }}
+		<br/>"this" is {{ this }}
+		<br/>"model" is {{model}}
+		<br/><button {{ action "wtfIsThis" this }}>what is this passed to method?</button>
+	</script>
+
+</body>
+<script>
+
+var App = Ember.Application.create({});
+
+App.ApplicationRoute = Ember.Route.extend({
+	model: function() {
+		return Ember.Object.create({
+			firstName: 'Mary',
+			lastName: 'Smith'
+		});
+	}
+});
+
+App.ApplicationController = Ember.ObjectController.extend({
+	wtfIsThis: function(t) {
+		alert('hai ' + t);
+	}
+})
+
+
+</script>
+</html>
+

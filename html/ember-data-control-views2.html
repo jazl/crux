@@ -1,0 +1,164 @@
+<html>
+<head>
+	<title>Ember Control Views, round 2</title>
+	<script src="libs/jquery-1.9.1.min.js"></script>
+	<script src="libs/jquery.validate.min.js"></script>
+	<script src="libs/handlebars.js"></script>
+	<script src="libs/ember-1.0.0-rc.1.js"></script>
+	<script src="libs/ember-data.js"></script>
+</head>
+<body>
+	<h4>Ember Control Views, Pt 2</h4>
+	<i>demonstrates Ember views, which is a control</i>
+	<script type="text/x-handlebars" data-template-name="application">
+		<h5>This comes from one view</h5>
+		model used in this template: {{ model }}
+		<form id="mainform">
+			<br/>Module Id: {{ moduleId }}
+			<br/>Module Code: {{ moduleCode }}
+			<br/>Description: {{ description }}
+		</form>
+		{{ outlet }}
+		<hr />
+		<ol>Notes:
+			<li>Yeah, views operate independently of each other. Deal with it.
+			</li>
+			<li>Note the use of route map to fire off multiple routes from the / path
+			</li>
+		</ol>
+	</script>	
+	<script type="text/x-handlebars" data-template-name="loginInfo">
+		<h5>This comes from one view</h5>
+		model used in this template: {{ model }}
+		<br/>Practice ID: {{ practiceId }}
+		<br/>Username: {{ userName }}
+	</script>	
+</body>
+<script>
+
+var App = Em.Application.create({});
+
+// Must have route so that LoginInfoRoute kicks into gear
+App.Router.map(function(){
+	// TODO: The application resource is redundant, as the application objects are magically 
+	// instantiated from deep within the bowels of EmberJS.
+	// But we explicitly define here, for explicitness' sake.
+	// But... if the application route happens to be the only one defined here, then 
+	// EmberJS fires ApplicationRoute off *twice* like a little whiny bitch
+	this.resource("application", { path: "/" });
+	this.resource("loginInfo", { path: "/" });
+})
+
+// extending the application route so we can pass back a model
+App.ApplicationRoute = Em.Route.extend({
+	model: function(){
+		console.log("in ApplicationRoute...");
+		var module = App.Module.find(1);
+		return module;
+	}
+});
+
+// extending the application route so we can pass back a model
+App.LoginInfoRoute = Em.Route.extend({
+	model: function(){
+		console.log("in LoginInfoRoute...");
+		var loginInfo = Ember.Object.create({
+			practiceId: 'Fixturepracticeident',
+			userName: 'FixtureUsername'
+		});
+		return loginInfo;
+	}
+});
+
+// TODO: apparently we simply cannot have a "loginInfo" template without
+// overriding the view and setting templateName to it.
+// WTF happened to all this magical crap that I keep hearing about?
+App.LoginInfoView = Em.View.extend({
+	templateName: 'loginInfo'
+});
+
+DS.RESTAdapter.configure("plurals", {
+    patient: "patients"
+});
+
+DS.RESTAdapter.reopen({
+    url: 'http://localhost/EhrServiceWrapper/api'
+    //url: 'http://localhost:52892/api'
+});
+
+App.Store = DS.Store.extend({
+	adapter: 'DS.FixtureAdapter',
+	revision: 11
+});
+
+DS.RESTAdapter.map('App.Module', {
+    moduleId: { key: 'moduleId'},
+    moduleTypeId: { key: 'moduleTypeId' },
+    moduleCode: { key: 'moduleCode' },
+    moduleForms: { key: 'moduleForms' }
+});
+
+DS.RESTAdapter.map('App.ModuleForm', {
+    moduleForm: { key: 'moduleForm' },
+    formId: { key: 'formId'},
+    pageName: { key: 'pageName' }
+});
+
+App.Module = DS.Model.extend({
+    moduleId: DS.attr('number'),
+    moduleTypeId: DS.attr('number'),
+    moduleCode: DS.attr('string'),
+    description: DS.attr('string'),
+    sequence: DS.attr('number'),
+    moduleForms: DS.hasMany('App.ModuleForm')
+});
+
+App.ModuleForm = DS.Model.extend({
+    moduleForm: DS.belongsTo('App.Module'),
+    formId: DS.attr('number'),
+    pageName: DS.attr('string'),
+    sequence: DS.attr('number')
+});
+
+App.Module.FIXTURES = [
+	{
+	    id: 1,
+	    moduleId: 1,
+	    moduleTypeId: 1,
+	    moduleCode: 'PracticeSetup',
+	    description: 'Practice Setup',
+	    sequence: 1,
+	    moduleForms: [1,2,3,4]
+	}
+];
+
+App.ModuleForm.FIXTURES = [
+	{
+	    id: 1,
+	    formId: 1,
+	    pageName: 'WELCOME',
+	    sequence: 1
+	},
+	{
+	    id: 2,
+	    formId: 2,
+	    pageName: 'PRACTICE',
+	    sequence: 2
+	},
+	{
+	    id: 3,
+	    formId: 3,
+	    pageName: 'USERS',
+	    sequence: 3
+	},
+	{
+	    id: 4,
+	    formId: 4,
+	    pageName: 'LABS',
+	    sequence: 4
+	}
+];
+
+</script>
+</html>
+

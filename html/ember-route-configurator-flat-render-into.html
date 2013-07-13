@@ -1,0 +1,78 @@
+<html>
+<head>
+	<title>Flat Routes</title>
+	<script src="libs/jquery-1.9.1.min.js"></script>
+	<script src="libs/handlebars.js"></script>
+	<script src="libs/ember-1.0.0-rc.1.js"></script>
+</head>
+<body>
+	<h4>Flat Routes</h4>
+	
+	<script type="text/x-handlebars">
+	    {{#linkTo "practice"}}practice{{/linkTo}}
+	    {{#linkTo "practice.configurator.index"}}configurator{{/linkTo}}
+	    {{#linkTo "practice.configurator.basic"}}configurator.basic{{/linkTo}}
+	    {{#linkTo "practice.configurator.users"}}configurator.users{{/linkTo}}
+	    {{#linkTo "practice.configurator.erx"}}configurator.erx{{/linkTo}}
+	    <p></p>
+	    <div style="height:250px;width:450px;background-color:yellow;">
+		    application outlet
+		    <br/>{{outlet}}
+	    <div>
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="practice/configurator/index">
+	    <div style="margin:10px 20px 10px 20px;height:200px;width:325px;background-color:green;">
+		    configurator: 
+		    <br/>{{outlet 'c'}}
+	    </div>
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="practice/configurator/basic">
+	    <div style="margin:10px 20px 10px 20px;height:125px;width:225px;background-color:pink;">
+			configurator/basic template
+		</div>
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="practice/configurator/users">
+	    <div style="margin:10px 20px 10px 20px;height:125px;width:225px;background-color:silver;">
+			configurator/USERS template
+		</div>
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="practice/configurator/erx">
+	    <div style="margin:10px 20px 10px 20px;height:125px;width:225px;background-color:gray;">
+			configurator/ERX template
+		</div>
+	</script>
+
+</body>
+<script>
+
+App = Ember.Application.create({});
+
+App.Router.map(function() {
+    this.resource('practice', { path: '/practice' }, function() {
+        this.route('configurator.index', { path: '/configurator'});
+        this.route('configurator.basic', { path: '/configurator/basic'} );
+        this.route('configurator.users', { path: '/configurator/users'}  );
+        this.route('configurator.erx', { path: '/configurator/erx'}  );
+        this.route('configurator.summary' );
+    });
+});
+
+// TODO: why doesn't this work???
+App.PracticeConfiguratorBasicRoute = Ember.Route.extend({
+	renderTemplate: function() {
+		this._super();
+		console.log("In PracticeConfiguratorBasicRoute renderTemplate");
+		this.render({
+			into: 'practice/configurator/index',
+			outlet: 'c'
+		});
+	}
+});
+
+</script>
+</html>
+

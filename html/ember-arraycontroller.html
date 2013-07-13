@@ -1,0 +1,70 @@
+<html>
+<head>
+	<title>ArrayController</title>
+	<script src="libs/jquery-1.9.1.min.js"></script>
+	<script src="libs/jquery.validate.min.js"></script>
+	<script src="libs/handlebars.js"></script>
+	<script src="libs/ember-1.0.0-rc.1.js"></script>
+	<script src="libs/ember-data.js"></script>
+</head>
+<body>
+	<h4>ArrayController</h4>
+	<i>demonstrates an Ember application with an array controller</i>
+	<script type="text/x-handlebars">
+	{{ controller }}
+	{{#each p in controller }}
+	<br/>page name = {{ p.pageName }}
+	{{/each}}
+	<div>
+		<a href="#" {{ action "previous" this }}>Previous</a>
+		&nbsp;&nbsp;&nbsp;
+		<a href="#" {{ action "next" this }}>Next</a>
+	</div>
+	<br/>Index = {{ controller.index }}
+	</script>	
+</body>
+<script>
+
+var App = Em.Application.create({});
+
+// extending the application route so we can pass back a model
+App.ApplicationRoute = Em.Route.extend({
+	model: function(params){
+		return App.Page.find();
+	}
+});
+
+// extending the application controller so we can define actions here
+App.ApplicationController = Em.ArrayController.extend({
+	index: 0,
+	previous: function(model){
+		debugger;
+		var i = this.get('index');
+		this.set('index', --i);
+	},
+	next: function(model){
+		var i = this.get('index');
+		this.set('index', ++i);
+	}
+});
+
+// Model
+App.Store = DS.Store.extend({
+    revision: 11,
+    adapter: 'DS.FixtureAdapter'
+});
+
+App.Page = DS.Model.extend({
+	pageName: DS.attr('string'),
+	className: DS.attr('string')
+});
+
+App.Page.FIXTURES = [
+    {id:1, pageName:'page 1', className: 'PAGE1'},
+    {id:2, pageName:'second page', className: 'PAGE2'},
+    {id:3, pageName:'Third_page', className: 'PAGE3'}
+];
+
+</script>
+</html>
+

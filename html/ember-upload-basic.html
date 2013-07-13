@@ -1,0 +1,49 @@
+<html>
+<head>
+	<title>Ember Files</title>
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/handlebars.js"></script>
+	<script src="../libs/ember-1.0.0-rc.1.js"></script>
+</head>
+<body>
+	<h4>Basic</h4>
+	<i>demonstrates a basic Ember application</i>
+
+<script type="text/x-handlebars">
+    {{#view App.FileSelectionView}}
+        <input type="file" id="files" name="files[]" {{action "fileSelectionChanged" on="change" target=view }} multiple/>
+        <output id="list">
+            <ul>
+                {{#each files}}
+                    <li><strong>{{name}}</strong> ({{type}}) - {{size}} bytes, last modified: {{date}}</li>
+                {{/each}}
+            </ul>
+        </output>
+    {{/view}}
+</script>
+
+<script type="text/javascript">
+    App = Ember.Application.create();
+
+    App.FileSelectionView = Ember.View.extend({
+        files: null,
+
+        fileSelectionChanged: function(evt) {
+        	debugger;
+            var inputFiles = evt.target.files;
+            var files = [];
+            for (var i = 0, f; f = inputFiles[i]; i++) {
+                files.pushObject({
+                    name: escape(f.name),
+                    type: f.type || 'n/a', 
+                    size: f.size,
+                    date: f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a'
+                });
+            }
+            this.set('files', files);
+        }
+    });
+</script>
+</body>
+</html>
+

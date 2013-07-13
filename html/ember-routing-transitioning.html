@@ -1,0 +1,71 @@
+<html>
+<head>
+  <title>X Routes/Transitions</title>
+  <script src="libs/jquery-1.9.1.min.js"></script>
+  <script src="libs/jquery.validate.min.js"></script>
+  <script src="libs/handlebars.js"></script>
+  <script src="libs/ember-1.0.0-rc.1.js"></script>
+</head>
+<body>
+  <h4>Routes/Transitions</h4>
+  <i>Routes, segments, transitions, oh my!</i>
+  <script type="text/x-handlebars">
+    controller at work = {{ controller }}
+    {{ outlet }}
+    <br/>
+    <button {{ action "gotoRoute" }}>Go to route</button>
+    <ol>Notes:
+      <li>For some reason Em.ObjectController.extend() will not work to create a freakishly simple controller. WTF?
+      </li>
+      <li>Answer to above: must implement ApplicationRoute explicitly and hook into Model() method? What happened to having that generated automatically?
+      </li>
+      <li>"Workaround" => use a plain Ember.Controller instead
+      </li>
+      <li>Best of all, no errors or warnings when you encounter the above situation! Huzzah!
+      </li>
+    </ol>
+  </script> 
+
+  <script type="text/x-handlebars" data-template-name="route1">
+    <br/>route1
+    <br/>controller at work = {{ controller }}
+  </script> 
+
+  <script type="text/x-handlebars" data-template-name="route2">
+    <br/>route2
+    <br/>controller at work = {{ controller }}
+  </script> 
+
+</body>
+<script>
+
+var App = Em.Application.create({
+});
+
+// App.ApplicationRoute = Em.Route.extend({
+//   model: function(){
+//     return Em.Object.create();
+//   }
+// });
+
+// TODO: why doesn't Em.ObjectController.extend({}) work here??????
+App.ApplicationController = Em.Controller.extend({
+  gotoRoute: function() {
+    alert('hai');
+  }
+});
+
+App.Router.map(function(){
+  this.resource("route1", { path: '/route1' });
+  this.resource("route2", { path: '/route2' });
+  this.resource("route3", { path: '/route3/:user_id' });
+})
+
+App.Route3Route = Ember.Route.extend({
+  model: function(params) {
+    console.log('in Route3Route with params = ' + JSON.stringify(params));
+  }
+});
+
+</script>
+</html>

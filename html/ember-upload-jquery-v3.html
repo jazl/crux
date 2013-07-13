@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<head>
+	<title>X Upload (jQuery)</title>
+	<link rel="stylesheet" href="../css/bootstrap.css">
+	<link rel="stylesheet" href="../libs/jQuery-upload/css/jquery.fileupload-ui.css">
+
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/handlebars.js"></script>
+	<script src="../libs/ember-1.0.0-rc.1.js"></script>
+	
+	<script src="../libs/jQuery-upload/vendor/jquery.ui.widget.js"></script>
+	<script src="../libs/jQuery-upload/jquery.iframe-transport.js"></script>
+	<script src="../libs/jQuery-upload/jquery.fileupload.js"></script>
+
+	<style>
+	.viewclass {
+		width:150px;
+		height:150px;
+		background-color: green;
+	}
+	.import-button {
+	    width: 250px;
+	    white-space: nowrap;
+	}
+	</style>
+</head>
+<body>
+	<h4>jQuery Upload</h4>
+	<i>Uploading, but with jQuery this time</i>
+	<p></p>
+
+	<script type="text/x-handlebars" id="upload">
+		{{controller}}
+        <form id="fileuploadForm" enctype="multipart/form-data">
+            {{ view App.ValidatingTextField valueBinding="practiceIdentifier" name="practiceIdentifier"}}
+            {{ view App.ValidatingTextField valueBinding="upid" name="upid"}}
+            {{#if uploadFileName}}
+                <div id="uploadedFileDiv" class="uploaded-file-container">
+                    <span id="uploadedFileName">{{uploadFileName}}</span>&nbsp;
+                    <a id="removeFileLink" class="icon-remove pull-right" {{action 'removeFile'}} href="#"></a>
+                </div>
+            {{ else }}
+                <span id="fileUploadButton" class="btn btn-primary fileinput-button">
+                    <span>Select file for upload</span>
+                    <!-- The file input field used as target for the file upload widget -->
+                    <input id="fileupload" type="file" name="files[]" multiple {{bindAttr value=uploadFileName}}>
+                </span>
+            {{/if }}
+        </form>
+        <span id="uploadMessage"></span>
+        <span id="files"></span>
+        <hr/>
+    </script>
+
+	<script type="text/x-handlebars" id="index">
+		App.UploadView is rendered below:
+		<br/>{{ render App.UploadView }}
+	</script>
+
+	<script>
+
+		var App = Ember.Application.create({
+			LOG_TRANSITIONS: true
+		});
+
+	    App.ValidatingTextField = Ember.TextField.extend({
+	        attributeBindings: [ 'name', 'data-validation-group' , 'autocomplete']
+	    });
+
+		App.ApplicationRoute = Ember.Route.extend({
+			model: function() {
+				return Ember.Object.create({
+					"practiceIdentifier": "firsttimepracti",
+					"upid": "5666ef7e85f04f7fa27a3d31abb52165",
+					"uploadFileName": null
+				})
+			},
+			events: {
+				fileWasUploaded: function() {
+					alert('hai!!' + this.controllerFor('application'));
+					var ctl = this.controllerFor('application');
+					ctl.set('model.uploadFileName', 'route.xls');
+				}
+			}
+		});
+
+		App.ApplicationController = Ember.ObjectController.extend({
+			fileUploaded: function() {
+				alert('hai from controller!');
+				this.set('model.uploadFileName', 'controller.csv');
+			},
+			removeFile: function() {
+				return this.set('model.uploadFileName', null);
+			}
+		});
+
+		App.ApplicationView = Ember.View.extend({
+			view: null,
+			templateName: 'upload',
+
+			didInsertElement: function() {
+				view = this;
+				console.log("In UploadView didInsertElement...");
+	            Ember.run.scheduleOnce('afterRender', this, 'setupJQUploader');
+			},
+
+	        handleUploadResult: function(file, data, response) {
+	        	var result = data.result;
+	        	var fileName = data.files[0].name;
+	            var msg = "Unknown error. Return code: " + data;
+
+	            // Server was never reached
+	           	if (result === undefined) {
+		            $("#uploadMessage").text("Unable to reach upload endpoint.");
+		            return;
+	           	}
+
+				// Server was reached and returned results	           	
+	        	if (result.trim().length === 0 || result.lastIndexOf("</html>") > -1) {
+	        		// Empty content was returned, so no errors found
+		            $('#uploadedFileName').text(fileName);
+		            $('input[name=uploadFileName]').val(fileName);
+		            var controller = view.get('controller');
+		            controller.set('model.uploadFileName', fileName);
+		            $('#uploadedFileDiv').show();
+		            $('#fileUploadButton').hide();
+	        	}
+	        	else {
+	        		// String or numeric value was returned
+		        	if (parseInt(result) > 0) {
+			            if(result === "01"){
+			                msg = "Practice identifier or upload guid is missing.";
+			            }
+			            else if(result === "02"){
+			                msg = "Invalid upload guid.";
+			            }
+			            else if (result === "03") {
+			                msg = "Practice identifier is not a string.";
+			            }
+			            else if (result === "06") {
+			                msg = "Upload content length was zero.";
+			            }
+			            else if (result === "07") {
+			                msg = "File exceeds the maximum size allowed.";
+			            }
+			            else if (result === "08") {
+			                msg = "Attempting to uplod more than 1 file.";
+			            }
+		        	}
+		        	else {
+		        		// Endpoint is a web form, so html content might be returned!
+		        		msg = "Got response from server: " + result;
+		        	}
+		            $("#uploadMessage").text(msg);
+	        	}
+	        },
+
+	        uploadFile: function(e, data) {
+
+	        	var file = data.files[0];
+
+	        	console.log("file name: " + file.name);
+        		console.log("file size: " + file.size);
+        		console.log("file type: " + file.type);
+
+                //data.submit();
+                //$('#fileupload').submit();
+	        },	                
+
+	        setProgress: function(e, data) {
+            	console.log("setting progress...");
+                var progress = parseInt(data.loaded / data.total * 100, 10);
+                $('#progress .bar').css(
+                    'width',
+                    progress + '%'
+                );
+            },
+
+	        setupJQUploader: function() {
+				console.log("In UploadView setupJQUploader...");
+
+	            $('#fileupload').fileupload({
+	            	// NOTE: set to false for IE10!!
+	            	forceIframeTransport: false,
+	            	maxFileSize: 1,
+	            	url: '/DemographicsUpload/FlexUploadDemographics.aspx',
+	                dataType: 'text',
+        			done: this.handleUploadResult,
+	                progress: this.setProgress
+	            });
+
+				$('#fileupload').bind('fileuploadsubmit', function (e, data) {
+					var allowedExt = ['xls','xlsx','xlm','csv','pdf','txt','zip','adt','dat','dbf','bak','asc'];
+					var maxSize = 1024 * 20;
+
+					console.log("********************* fileuploadsubmit ********************");
+					var file = data.files[0];
+					if (file.name){
+						var ext = file.name.substring(file.name.lastIndexOf('.') + 1);
+						console.log("extension = " + ext);
+						if($.inArray(ext.toLowerCase(), allowedExt) === -1){
+							console.log("Unsupported file, ext = " + ext);
+							return false;	
+						}
+					}
+					if (file.size){
+						if(file.size > maxSize) {
+							console.log("File exceeds max size of " + maxSize + ", size = " + file.size);
+							return false;
+						}
+					}
+					else{
+						console.log("No size available...");
+					}
+				});
+
+	            $('#uploadedFileDiv').hide();
+
+	   //          $('#fileuploadCtl').bind('change', function (e) {
+	   //          	console.log("caught change event... sending file!");
+				//     $('#fileupload').fileupload('add', {
+				//         fileInput: $(this)
+				//     });
+				// });
+	        }
+
+		})
+	</script>
+</body>
+</html>
+

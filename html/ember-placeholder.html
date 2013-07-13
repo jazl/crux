@@ -1,0 +1,158 @@
+<html>
+<head>
+	<title>X Ember/jQV</title>
+	<script src="libs/jquery-1.9.1.min.js"></script>
+	<script src="libs/jquery.validate.min.js"></script>
+	<script src="libs/handlebars.js"></script>
+	<script src="libs/ember-1.0.0-rc.1.js"></script>
+	<script src="libs/jquery.maskedinput.min.js"></script>
+	<script src="libs/jquery.html5-placeholder-shim.js"></script>
+</head>
+<body>
+	<h4>jQuery Validation 'n Ember</h4>
+	<i>Demonstrates use of jQuery Validation plugin w/ Ember, 'cuz a form ain't gonna validate itself</i>
+
+	<script type="text/x-handlebars" data-template-name="application">
+		{{ outlet }}
+	</script>
+	<hr/>
+
+	<form id="normalForm">
+		First Name (normal form): <input type="input" placeholder="FIRST NAME (FORM)" />
+	</form>
+	<script type="text/x-handlebars" id="employees-tmpl">
+		<h5>Emmployees template:</h5>
+		<form id="mainform">
+			First Name (form): <input type="input" placeholder="FIRST NAME (FORM)" />
+			<br/>First Name: {{ view App.ValidatingTextField
+								valueBinding="firstName" 
+								id="firstName" 
+								name="firstName"
+								placeholder="FIRST NAME" }}
+			<br/>Last Name: {{ view App.ValidatingTextField
+								valueBinding="lastName"
+								id="lastName"
+								name="lastName" 
+								placeholder="LAST NAME"}}
+								{{ outlet }}
+			<br/><button {{ action "save" this }}>Save</button>
+			<br/><input type="submit">
+		</form>
+		<hr />
+		<br/>Controller = {{ controller }}
+	</script>	
+</body>
+<script>
+
+var App = Em.Application.create({});
+
+App.countriesBindings = Ember.ArrayController.create({
+	content:[
+		Ember.Object.create({code:"US",text:"United States"}),
+		Ember.Object.create({code:"AU",text:"Australia"})
+	]
+});
+
+App.ValidatingTextField = Ember.TextField.extend({
+	attributeBindings: [ 'name', 'data-validation-group' ]
+});
+
+App.Router.map(function(){
+	this.resource('employees', { path:'/' });
+})
+
+App.EmployeesRoute = Em.Route.extend({
+ 	model: function() {
+ 		return Em.Object.create({
+ 			firstName: '',
+ 			lastName: null
+ 		});
+ 	}
+ });
+
+App.EmployeesController = Em.ObjectController.extend({
+	save: function(model) { 
+		var msg = model.get('firstName') + ' ' + model.get('lastName');
+		//alert('model: ' + msg); 
+	}
+});
+
+App.EmployeesView = Em.View.extend({
+	templateName: 'employees-tmpl',
+	didInsertElement: function() {
+		console.log('in view didInsertElement...');
+		var frm = $('#mainform');
+		frm.validate({
+			rules: {
+				firstName: { required: true },
+				lastName: { required: true }
+			}
+		});
+		frm.submit(function(event){
+			console.log('submitting...');
+			//alert('valid? ' + frm.valid());
+		});
+
+	}
+	//click: function(event) { alert('hai from view'); }
+});
+
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+
+App.AnotherRoute = Em.Route.extend({
+ 	model: function() {
+ 		return Em.Object.create({
+ 			phone: '4155551212',
+ 			country: 'US'
+ 		});
+ 	}
+ });
+
+App.AnotherController = Em.ObjectController.extend({});
+
+App.AnotherView = Em.View.extend({
+	templateName: 'another-tmpl',
+	didInsertElement: function() {
+		
+		$.mask.definitions['X']="[A-Za-z0-9 '-]";
+
+		console.log('in view AnotherView didInsertElement...');
+		var frm = $('#anotherForm');
+		frm.validate({
+			rules: {
+				phone: { required: true }
+			}
+		});
+		frm.submit(function(event){
+			console.log('submitting...');
+			//alert('valid? ' + frm.valid());
+		});
+		$('#phone').mask('(999)999-9999');
+		$('#changeMask').on('click', function(evt) {
+			$('#phone').mask('999 999-9999');
+			evt.preventDefault();
+		})
+		$('#country').on('change', function(evt) {
+			evt.preventDefault();
+			if(evt.target.value != "US"){
+				$('#phone').mask('XXXXXXXXXXXXXXXXXXXX', {placeholder:''});
+			}
+			else{
+				$('#phone').mask('(999) 999-9999');
+			}
+		})
+	}
+	//click: function(event) { alert('hai from view'); }
+});
+
+</script>
+
+<script>
+$(document).ready(function() {
+
+});
+</script>
+</html>
+

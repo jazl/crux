@@ -1,0 +1,131 @@
+<html>
+<head>
+	<title>Ember CRUD Array Ajax</title>
+	<script src="libs/jquery-1.9.1.min.js"></script>
+	<script src="libs/jquery.validate.min.js"></script>
+	<script src="libs/handlebars.js"></script>
+	<script src="libs/ember-1.0.0-rc.1.js"></script>
+</head>
+<body>
+	<h4>ObjectController without Ember Data</h4>
+	<i>demonstrates an Ember application with an array controller, minus Ember Data</i>
+
+    <script type="text/x-handlebars">
+        <form>
+            {{#each user in controller }}
+                {{ view App.UserEditView contentBinding="user" }}
+            {{/each }}
+            <button {{ action "save" this }}>Save</button>
+        </form>
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="useredit-control">
+        <br/>
+        {{ view Ember.TextField valueBinding="user.firstName" name="firstName" }}
+        {{ view Ember.TextField valueBinding="user.lastName" name="lastName" }}
+        {{ view Ember.TextField valueBinding="user.email" name="email" }}
+        {{ view Ember.TextField valueBinding="user.npi" }}
+        {{ view Ember.Checkbox checkedBinding="user.isAdmin" name="isAdmin" }}
+        <a href="#" {{ action "delete" }}>X</a>
+    </script>
+
+</body>
+<script>
+
+var App = Em.Application.create({});
+
+// extending the application route so we can pass back a model
+App.ApplicationRoute = Em.Route.extend({
+	model: function(){
+        var url = 'http://localhost/EhrServiceWrapper/api/users/1';
+        var data = {};
+
+        // TODO: refactor into data class
+        $.support.cors = true;
+        $.ajax({
+            async: false,
+            url: url,
+            type: 'GET',
+            xhrFields: { withCredentials: true },
+            dataType: "json",
+            success: function (result) {
+                data = result;
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('Ajax call failed: ' + textStatus);
+            }
+        });
+        console.log("got result from server = " + JSON.stringify(data))
+        return data;
+    }, 
+});
+
+// extending the application controller so we can define actions here
+App.ApplicationController = Em.ArrayController.extend({
+    save: function(model) {
+        var model = this.get('content');
+        var jsonString = JSON.stringify(model);
+        console.log("Putting model: " + jsonString);
+        //if ($('form').valid()) {
+            if(model != null) {
+                //var url = 'http://localhost/EhrServiceWrapper/api/users/1';
+                var url = 'http://localhost:52892/api/users/1';
+                // TODO: refactor into data class
+                $.support.cors = true;
+                $.ajax({
+                    async: false,
+                    data: jsonString,
+                    url: url,
+                    type: 'PUT',
+                    xhrFields: { withCredentials: true },
+                    dataType: "json",
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader('Content-Type', 'application/json');
+                    },
+                    success: function (result) {
+                        data = result;
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        alert('Ajax call failed: ' + textStatus);
+                        return false;
+                    }
+                });
+                return true;
+            }
+        //}
+        return false;
+    }
+});
+
+App.UserEditController = Ember.ObjectController.extend({
+    userTitle: function() {
+        return "Dr";
+    }.property(),
+    delete: function(model){
+        alert('in UserEditController delete.');
+    }
+});
+
+App.UserEditView = Ember.View.extend({
+    controller: App.UserEditController,
+    templateName: 'useredit-control',
+    didInsertElement: function() {
+        console.log('in view didInsertElement...');
+        var frm = $('#mainform');
+        frm.validate({
+            rules: {
+                firstName: { required: true },
+                lastName: { required: true }
+            }
+        });
+    },
+    //click: function(event) { alert('hai from view'); }
+    delete: function(model){
+        alert('in UserEditController delete.');
+    }
+
+});
+
+</script>
+</html>
+

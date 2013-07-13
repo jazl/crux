@@ -1,0 +1,80 @@
+<html>
+<head>
+	<title>Ember Control Views</title>
+	<script src="libs/jquery-1.9.1.min.js"></script>
+	<script src="libs/jquery.validate.min.js"></script>
+	<script src="libs/handlebars.js"></script>
+	<script src="libs/ember-1.0.0-rc.1.js"></script>
+	<script src="libs/ember-data.js"></script>
+</head>
+<body>
+	<h4>Ember Control Views</h4>
+	<i>demonstrates an Ember view, which is a control</i>
+	<script type="text/x-handlebars">
+		<h5>Look ma, a select list!</h5>
+		Here is the built-in Ember.Select control:
+		<br/>{{view Ember.Select
+					contentBinding="Practice.CustomControls.stateController"
+					selectionBinding="Practice.CustomControls.selectedStateController.state"
+					optionLabelPath="content.combinedName"
+					optionValuePath="content.id"
+					id="emberState"
+					name="emberState"}}
+
+		<br/>Here is the custom Practice.StateSelectList
+		<br/>{{ view Practice.StateSelectList valueBinding="state" id="state" name="state" }}
+
+   		<ol>Notes:
+			<li>Computed property used to render combined name in Ember.Select version
+			</li>
+			<li>Custom version uses state code as option value, state name as text
+			</li>
+		</ol>
+	</script>	
+</body>
+<script>
+
+	var App = Ember.Application.create();
+
+	var Practice = Practice || {};
+
+	// extending the control view to support validation
+	Practice.StateSelectList = Ember.Select.extend({
+	    attributeBindings: [ 'name', 'data-validation-group' ],
+		contentBinding: "Practice.CustomControls.stateController",
+		selectionBinding: "Practice.CustomControls.selectedStateController.state",
+		optionLabelPath: "content.stateName",
+		optionValuePath: "content.stateCode"
+	});
+
+	Practice.CustomControls = Practice.CustomControls || {};
+
+	Practice.CustomControls.State = Ember.Object.extend({
+	    id: null,
+	    stateCode: null,
+	    stateName: null,
+	    combinedName: function() {
+        	return this.get('stateCode') 
+        			+ " - " 
+        			+ this.get('stateName');
+    	}.property('stateCode', 'stateName').cacheable()
+
+	});
+
+	Practice.CustomControls.selectedStateController = Ember.Object.create({
+	    state: null
+	});
+
+	Practice.CustomControls.stateController = Ember.ArrayController.create({
+	    content: [
+	        Practice.CustomControls.State.create({id: 1, stateCode: 'AZ', stateName: 'Arizona'}),
+	        Practice.CustomControls.State.create({id: 1, stateCode: 'CA', stateName: 'California'}),
+	        Practice.CustomControls.State.create({id: 1, stateCode: 'FL', stateName: 'Florida'}),
+	        Practice.CustomControls.State.create({id: 1, stateCode: 'IL', stateName: 'Illinois'}),
+	        Practice.CustomControls.State.create({id: 1, stateCode: 'UT', stateName: 'Utah'})
+	    ]
+	});
+
+</script>
+</html>
+

@@ -1,0 +1,81 @@
+<html>
+<head>
+	<title>Controller#needs</title>
+	<script src="libs/jquery-1.9.1.min.js"></script>
+	<script src="libs/jquery.validate.min.js"></script>
+	<script src="libs/handlebars.js"></script>
+	<script src="libs/ember-1.0.0-rc.1.js"></script>
+	<script src="libs/ember-data.js"></script>
+</head>
+<body>
+	<h4>Controller#needs</h4>
+	<i>controller dependencies?</i>
+	
+	<script type="text/x-handlebars">
+		This is the application template with some model bindings
+		<br/>
+		{{ firstName }} {{ lastName }}
+		<br/>
+		<br/>main controller someCount = {{ controller.someCount }}
+		<br/>post controller someCount = {{ controllers.post.someCount }}
+		<br/><button {{ action "someMethod" }}>Method on app controller</button>
+		<br/><button {{ action "someMethod" target="controllers.post" }}>Method on post controller</button>
+		<br/><button {{ action "someMethod_new" }}>Method on app controller + method on post controller</button>
+	</script>	
+	
+</body>
+<script>
+
+var App = Em.Application.create({});
+
+// App.Router.map(function(){
+// 	this.resource('employees', { path:'/' });
+// })
+
+App.ApplicationRoute = Em.Route.extend({
+	model: function(){
+		return Ember.Object.create({
+			firstName: 'Lazy',
+			lastName: 'Loadr'
+		});
+	}
+});
+
+App.ApplicationController = Em.ObjectController.extend({
+	needs:['post'],
+	init: function() { 
+		console.log("initializing ApplicationController"); 
+
+	},
+	someCount: function() {
+		return 1111;
+	}.property(),
+	someMethod: function() {
+		alert('hai from ApplicationController');
+	},
+	someMethod_new: function() {
+		alert('hai from ApplicationController');
+		var postResult = this.get('controllers').get('post').someMethod_new();
+		alert('result from post controller = ' + postResult)
+	}
+});	
+
+App.PostController = Em.ObjectController.extend({
+	init: function() { 
+		console.log("initializing PostController"); 
+	},
+	someCount: function() {
+		return 2222;
+	}.property(),
+	someMethod: function() {
+		alert('hai from PostController');
+	},
+	someMethod_new: function() {
+		return "(this string is returned from the post controller)";
+	}
+});	
+
+</script>
+
+</html>
+

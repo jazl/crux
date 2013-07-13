@@ -1,0 +1,92 @@
+<html>
+<head>
+	<title>X Route params</title>
+	<script src="libs/jquery-1.9.1.min.js"></script>
+	<script src="libs/jquery.validate.min.js"></script>
+	<script src="libs/handlebars.js"></script>
+	<script src="libs/ember-1.0.0-rc.1.js"></script>
+</head>
+<body>
+	<h4>Route params</h4>
+	<i>routes and params</i>
+	
+	<script type="text/x-handlebars" id="configurator">
+		<p>Main controller = {{ controller }}</p>
+		{{ params }}
+		{{ outlet }}
+		<br/><br/><hr>Notes:
+		<ol>
+		</ol>
+	</script>
+
+</body>
+<script>
+
+var App = Em.Application.create({
+	params: {}
+});
+
+App.Router.map(function() {
+	// this.resource("application", function() {
+	// 	this.resource("index", { path: '/:user_id' });
+	// })
+	this.resource("configurator", { path: '/:user_id' });
+});
+
+App.IndexRoute = Ember.Route.extend({
+	model: function(params){
+		console.log("in IndexRoute model function");
+		console.log("params = " + JSON.stringify(params));
+		return {};
+	}
+});
+
+App.IndexController = Ember.ObjectController.extend({
+	params: 'in Index controller'
+});
+
+App.ConfiguratorRoute = Ember.Route.extend({
+	model: function(params){
+		console.log("in ConfiguratorRoute model function");
+		console.log("params = " + JSON.stringify(params));
+		return {};
+	}
+});
+
+App.ConfiguratorController = Ember.ObjectController.extend({
+	params: 'in Configurator controller'
+});
+
+// App.ApplicationRoute = Ember.Route.extend({
+// 	model: function(params){
+// 		console.log("in ApplicationRoue model function");
+// 		console.log("params = " + JSON.stringify(params));
+// 		return {};
+// 	}
+// });
+
+// App.ApplicationController = Ember.ObjectController.extend({
+// 	params: 'in app controller'
+// });
+
+App.TestRoute = Ember.Route.extend({
+	params: {},
+	model: function(params) {
+		console.log("in TestRoute model function");
+		console.log("*** params = " + JSON.stringify(params));
+	}
+});
+
+App.User = Ember.Object.extend({
+	id: 0,
+	firstName: '',
+	lastName: '',
+	email: '',
+	fullname: function() {
+		return this.get('firstName') + ' ' + this.get('lastName')
+	}.property('firstName', 'lastName')
+})
+
+</script>
+</html>
+

@@ -1,0 +1,196 @@
+<html>
+<head>
+	<title>Ember Data Sideloading Forms</title>
+	<script src="libs/jquery-1.9.1.min.js"></script>
+	<script src="libs/jquery.validate.min.js"></script>
+	<script src="libs/handlebars.js"></script>
+	<script src="libs/ember-1.0.0-rc.1.js"></script>
+	<script src="libs/ember-data.js"></script>
+</head>
+<body>
+	<h4>Ember Data with Forms + sideloading</h4>
+	<i>demonstrates a basic Ember Data application, but with side-loaded data just to fuck things up</i>
+	<script type="text/x-handlebars">
+		<form id="mainform">
+			<br/>Practice ID: {{ loginInfo.practiceId }}
+			<br/>Username: {{ loginInfo.userName }}
+			<br/>Module Description: {{ module.description }}
+		</form>
+		<hr />
+		<ol>Notes:
+		</ol>
+	</script>	
+</body>
+<script>
+
+var App = Em.Application.create({});
+
+// extending the application route so we can pass back a model
+App.ApplicationRoute = Em.Route.extend({
+	model: function(){
+		console.log("in ApplicationRoute...");
+		
+		// TODO: this is supposed to work
+		// http://progfu.com/post/40016169330/how-to-find-a-model-by-any-attribute-in-ember-js
+		//var module = App.Configuratorstatus.find({ practiceGuid: 'ef84347a-ee09-43f1-8614-a20dfb8101b5' });
+
+		//var configStatus = App.Configuratorstatus.find(1);
+		var configStatus = App.JSON.Configuratorstatus;
+		return configStatus;
+	}
+});
+
+// TODO: when API controller named Configurator_StatusController, request is send like so:
+// http://localhost/EhrServiceWrapper/api/configurator_statuss/ef84347a-ee09-43f1-8614-a20dfb8101b5
+// Note that two "ss" at the end. What the fuck?
+
+DS.RESTAdapter.configure("plurals", {
+    patient: "patients",
+    configuratorstatus: "configuratorstatus"
+});
+
+// http://localhost:52892/api/configurator_status/EF84347A-EE09-43F1-8614-A20DFB8101B5
+DS.RESTAdapter.reopen({
+    url: 'http://localhost/EhrServiceWrapper/api'
+    //url: 'http://localhost:52892/api'
+});
+
+App.Store = DS.Store.extend({
+	//adapter: 'DS.FixtureAdapter',
+	revision: 11
+});
+
+DS.RESTAdapter.map('App.Practice', {
+    practiceId: { key: 'practiceId'},
+    userName: { key: 'userName' }
+});
+
+DS.RESTAdapter.map('App.ModuleForm', {
+    moduleForm: { key: 'moduleForm' },
+    formId: { key: 'formId'},
+    pageName: { key: 'pageName' }
+});
+
+// TODO: cannot use camelcase here due to Ember Data freaking out
+App.Configuratorstatus = DS.Model.extend({
+	module: DS.belongsTo('App.Module'),
+	practice: DS.belongsTo('App.Practice')
+});
+
+App.Module = DS.Model.extend({
+    moduleId: DS.attr('number'),
+    moduleTypeId: DS.attr('number'),
+    moduleCode: DS.attr('string'),
+    description: DS.attr('string'),
+    sequence: DS.attr('number'),
+    moduleForms: DS.hasMany('App.ModuleForm')
+});
+
+App.ModuleForm = DS.Model.extend({
+    moduleForm: DS.belongsTo('App.Module'),
+    formId: DS.attr('number'),
+    pageName: DS.attr('string'),
+    sequence: DS.attr('number')
+});
+
+App.Practice = DS.Model.extend({
+    practiceId: DS.attr('string'),
+    userName: DS.attr('string')
+});
+
+// TODO: see note above re: camelcase names
+App.Configuratorstatus.FIXTURES = [
+	{
+		id: 1,
+		practiceGuid: 'ef84347a-ee09-43f1-8614-a20dfb8101b5',
+		module: 1,
+		practice: 1
+	}
+]
+
+App.Practice.FIXTURES = [
+	{
+	    id: 1,
+	    practiceId: 'FixturePracticeIdent',
+	    userName: 'Fixtureusername'
+	}
+];
+
+App.Module.FIXTURES = [
+	{
+	    id: 1,
+	    moduleId: 1,
+	    moduleTypeId: 1,
+	    moduleCode: 'PracticeSetup',
+	    description: 'Practice Setup',
+	    sequence: 1,
+	    moduleForms: [1,2,3,4]
+	}
+];
+
+App.ModuleForm.FIXTURES = [
+	{
+	    id: 1,
+	    formId: 1,
+	    pageName: 'WELCOME',
+	    sequence: 1
+	},
+	{
+	    id: 2,
+	    formId: 2,
+	    pageName: 'PRACTICE',
+	    sequence: 2
+	},
+	{
+	    id: 3,
+	    formId: 3,
+	    pageName: 'USERS',
+	    sequence: 3
+	},
+	{
+	    id: 4,
+	    formId: 4,
+	    pageName: 'LABS',
+	    sequence: 4
+	}
+];
+
+App.JSON = {};
+App.JSON.Configuratorstatus = {
+  "module":{
+     "description":"Practice Setup",
+     "moduleCode":"PracticeSetup",
+     "moduleForms":[
+        {
+           "formId":0,
+           "pageName":"WELCOME",
+           "sequence":1
+        },
+        {
+           "formId":0,
+           "pageName":"PRACTICE",
+           "sequence":2
+        },
+        {
+           "formId":0,
+           "pageName":"USERS",
+           "sequence":3
+        },
+        {
+           "formId":0,
+           "pageName":"LABS",
+           "sequence":4
+        }
+     ],
+     "moduleId":1,
+     "moduleTypeId":1,
+     "sequence":1
+  },
+  "loginInfo":{
+     "practiceId":"jsonpracidentifier",
+     "userName": "jsonusername"
+  }
+};
+</script>
+</html>
+

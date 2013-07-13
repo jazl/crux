@@ -1,0 +1,98 @@
+<html>
+<head>
+	<title>X Render/View/Partial</title>
+	<script src="libs/jquery-1.9.1.min.js"></script>
+	<script src="libs/jquery.validate.min.js"></script>
+	<script src="libs/handlebars.js"></script>
+	<script src="libs/ember-1.0.0-rc.1.js"></script>
+</head>
+<body>
+	<h4>Render/View/Partial</h4>
+	<i>differences between render, view, and partial helpers</i>
+	
+	<script type="text/x-handlebars">
+		<p>Main controller = {{ controller }}</p>
+		{{ outlet }}
+		<br/><br/><hr>Notes:
+		<ol>
+			<li>Render = render a thing that has its own context controller/view</li>
+			<li>Partial = display a template using current context</li>
+			<li>View = may have its own context, controller, etc.</li>
+		</ol>
+	</script>
+
+	<script type="text/x-handlebars" id="user">
+		<b>User template</b>
+		<br/>Controller used = {{ controller }}
+	</script>
+
+	<script type="text/x-handlebars" id="userxyz">
+		<b>Userxyz template</b>
+		<br/>Controller used = {{ controller }}
+	</script>
+
+	<script type="text/x-handlebars" id="userr">
+		<b>User (rendered) template</b>
+		<br/>Controller used = {{ controller }}
+	</script>
+
+	<script type="text/x-handlebars" id="userv">
+		<b>User view template</b>
+		<br/>Controller used = {{ controller }}
+	</script>
+
+	<script type="text/x-handlebars" id="userparams">
+		<b>User w/ params template</b>
+		<br/>Controller used = {{ controller }}
+	</script>
+
+	<script type="text/x-handlebars" id="_user">
+		<b>User partial template</b>
+		<br/>Controller used = {{ controller }}
+	</script>
+
+</body>
+<script>
+
+var App = Em.Application.create({});
+
+App.Router.map(function() {
+	this.resource("user");
+	this.resource("userxyz");
+	this.resource("userparams", { path: '/:user_id' });
+});
+
+App.IndexRoute = Ember.Route.extend({
+	redirect: function() {
+		//this.transitionTo("index");
+	}
+});
+
+App.IndexRoute = Ember.Route.extend({
+	redirect: function() {
+		//this.transitionTo("index");
+	}
+});
+
+App.Userparams = Ember.Route.extend({
+	model: function(params) {
+		console.log("in Userparams route, params = " + JSON.stringify(params));
+		return App.User.create();
+	}
+});
+
+App.UserRoute = Ember.Route.extend();
+
+App.User = Ember.Object.extend({
+	id: 0,
+	firstName: '',
+	lastName: '',
+	email: '',
+	fullname: function() {
+		return this.get('firstName') + ' ' + this.get('lastName')
+	}.property('firstName', 'lastName')
+})
+
+</script>
+</html>
+

@@ -1,0 +1,59 @@
+<html>
+<head>
+	<title>X Views</title>
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/handlebars.js"></script>
+	<script src="../libs/ember-1.0.0-rc.1.js"></script>
+	<script src="../libs/ember-data.js"></script>
+	<style>
+	.viewclass {
+		width:150px;
+		height:150px;
+		background-color: yellow;
+	}
+	</style>
+</head>
+<body>
+	<h4>Views</h4>
+	<i>Stuff about views</i>
+	<p></p>
+
+	<script type="text/x-handlebars">
+		outlet: {{ outlet }}
+	</script>
+
+	<script type="text/x-handlebars" id="index">
+		<br/>This is the index view template
+		<br/>someview: (between){{ view App.SomeView }}(here)
+		<br/>MyTextView: {{ view App.MyTextView }}		
+	</script>
+
+</body>
+<script>
+
+var App = Ember.Application.create({
+	LOG_TRANSITIONS: true
+});
+
+App.SomeView = Ember.View.extend({
+	tagName: 'div',
+	classNames: ['viewclass'],
+	classNameBindings: ['viewProperty'],
+	viewProperty: function() {
+		return "boundclassname";
+	}.property(),
+	click: function(){
+		alert('clicked!');
+	}
+});
+
+App.MyTextView = Ember.View.extend({
+	tagName: 'input',
+	attributeBindings: ['value', 'disabled'],
+	value: 'Hardcoded value',
+	disabled: true
+});
+
+</script>
+</html>
+

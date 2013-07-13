@@ -1,0 +1,88 @@
+<html>
+<head>
+	<title>Ember/jQV</title>
+	<script src="libs/jquery-1.9.1.min.js"></script>
+	<script src="libs/jquery.validate.min.js"></script>
+	<script src="libs/handlebars.js"></script>
+	<script src="libs/ember-1.0.0-rc.1.js"></script>
+</head>
+<body>
+	<h4>Basic</h4>
+	<i>demonstrates a basic Ember application</i>
+	<script type="text/x-handlebars">
+		controllerContent = {{ controllerContent }}
+		<form id="mainform">
+			<br/>First Name: {{ view Ember.TextField 
+								valueBinding="firstName" 
+								id="firstName" 
+								name="firstName" }}
+			<br/>Last Name: {{ view Ember.TextField 
+								valueBinding="lastName"
+								id="lastName"
+								name="lastName" }}
+								{{ outlet }}
+			<br/><button {{ action "save" this }}>Save</button>
+		</form>
+		<hr />
+		<ol>Notes:
+			<li>Using controller {{ controller }}. Application controller needs to be overridden so model can be passed back.
+			</li>
+			<li>"Save" action is defined in ApplicationController. Cannot be defined in Route. View only handles system events(?).
+			</li>
+		</ol>
+	</script>	
+</body>
+<script>
+
+var App = Em.Application.create({});
+
+// extending the application route so we can pass back a model
+App.ApplicationRoute = Em.Route.extend({
+	model: function(){
+		return Em.Object.create({
+			firstName: 'Debbie',
+			lastName: 'Roloff-from-model'
+		});
+	},
+	// setupController: function(controller, model) {
+	// 	var obj = Em.Object.create({
+	// 		firstName: 'Debbie',
+	// 		lastName: 'Roloff-from-setupcontroller'
+	// 	});
+	// 	controller.set('content', obj);
+
+	// },
+	// TODO: THIS WILL NOT WORK HERE
+	save: function(model){
+		alert('in Route save. Name: ' + model.get('firstName') + ' ' + model.get('lastName'));
+	}
+});
+
+// extending the application controller so we can define actions here
+App.ApplicationController = Em.ObjectController.extend({
+	controllerContent: function() {
+		return this.get('content');
+	}.property(),
+	init: function() {
+		console.log("In ApplicationController init, content = " + this.get('content'));
+	},
+	// save function defined here, cannot be defined in view
+	save: function(model){
+		alert('in ApplicationController save. Name: ' + model.get('firstName') + ' ' + model.get('lastName'));
+	}
+});
+
+// tried extending the application view so we  so we can define actions here, but does not work this way
+// only events such as click, mouse over, etc. are captured here
+App.ApplicationView = Em.View.extend({
+	templateName: 'application',
+	// TODO: THIS DOES NOT WORK
+	save: function(model){
+		alert('in ApplicationView save. Name: ' + model.get('firstName') + ' ' + model.get('lastName'));
+	}
+});
+
+
+</script>
+</html>
+

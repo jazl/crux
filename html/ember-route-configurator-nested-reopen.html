@@ -1,0 +1,126 @@
+<html>
+<head>
+	<title>Nested Routes</title>
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/rc1/handlebars.js"></script>
+	<script src="../libs/rc1/ember-1.0.0-rc.1.js"></script>
+</head>
+<body>
+	<h4>Nested Routes (w/ reopen)</h4>
+	
+	<script type="text/x-handlebars">
+	    {{#linkTo "practice"}}practice{{/linkTo}}
+	    {{#linkTo "configurator"}}configurator{{/linkTo}}
+	    {{#linkTo "configurator.basic"}}configurator.basic{{/linkTo}}
+	    {{#linkTo "configurator.users"}}configurator.users{{/linkTo}}
+	    {{#linkTo "configurator.erx"}}configurator.erx{{/linkTo}}
+	    <p></p>
+	    <div style="height:250px;width:450px;background-color:yellow;">
+		    application outlet
+		    <br/>{{outlet}}
+	    <div>
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="configurator">
+	    <div style="margin:10px 20px 10px 20px;height:200px;width:325px;background-color:green;">
+		    configurator: 
+		    <br/>{{outlet}}
+	    </div>
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="configurator/basic">
+	    <div style="margin:10px 20px 10px 20px;height:125px;width:225px;background-color:pink;">
+			configurator/basic template
+		</div>
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="configurator/users">
+	    <div style="margin:10px 20px 10px 20px;height:125px;width:225px;background-color:silver;">
+			configurator/USERS template
+		</div>
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="configurator/erx">
+	    <div style="margin:10px 20px 10px 20px;height:125px;width:225px;background-color:gray;">
+			configurator/ERX template
+		</div>
+	</script>
+
+</body>
+<script>
+
+App = Ember.Application.create({});
+
+App.Router.map(function() {
+    this.resource('practice', { path: '/practice' }, function() {
+        this.resource('configurator', { path: '/configurator'}, function() {
+            this.route('basic' );
+            this.route('users' );
+            this.route('erx' );
+            this.route('summary' );
+        })
+    });
+});
+
+App.ConfiguratorRoute = Ember.Route.extend({
+	model: function() {
+		this._super();
+		console.log("in ConfiguratorRoute model ");
+	}
+});
+
+App.ConfiguratorController = Ember.ObjectController.extend({
+	init: function() {
+		this._super();
+		console.log("in ConfiguratorController init ");
+	}
+});
+
+App.ConfiguratorIndexRoute = Ember.Route.extend({
+	model: function() {
+		this._super();
+		console.log("in ConfiguratorIndexRoute model ");
+	}
+});
+
+App.ConfiguratorIndexController = Ember.ObjectController.extend({
+	init: function() {
+		this._super();
+		console.log("in ConfiguratorIndexController init ");
+	}
+});
+
+
+App.ConfiguratorBasicRoute = Ember.Route.extend({
+	model: function() {
+		this._super();
+		console.log("in ConfiguratorBasicRoute model ");
+	}
+});
+
+App.ConfiguratorBasicController = Ember.ObjectController.extend({
+	init: function() {
+		this._super();
+		console.log("in ConfiguratorBasicController init ");
+	}
+});
+
+
+Ember.Route.reopen({
+   setup: function (context) {
+   	   console.log("in Ember.Route.reopen...");
+       //Redirect if is protected set to true
+       if (this.isProtected) {
+           if (!App.session.get('isLoggedIn')) {
+               App.log.info('Transition to main/login');
+               this.transitionTo('login.index');
+           }
+       }else{
+           this._super(context);
+       }
+   }
+});
+
+</script>
+</html>
+

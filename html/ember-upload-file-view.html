@@ -1,0 +1,91 @@
+<html>
+<head>
+	<title>Ember Files</title>
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/handlebars.js"></script>
+	<script src="../libs/ember-1.0.0-rc.1.js"></script>
+</head>
+<body>
+	<h4>Ember file upload with preview</h4>
+	from here: http://chrismeyers.org/2012/06/12/ember-js-handlebars-view-content-inheritance-image-upload-preview-view-object-binding/
+
+<script type="text/x-handlebars" data-template-name="sample">
+    <p><button {{action "alert_img"}}>alert image contents</button></p>
+</script>
+
+<script type="text/x-handlebars">
+    {{#view Ember.View contentBinding="App.myModel"}}
+            {{#view App.PreviewUploadImage name="logo_image" contentBinding="content"}}
+                {{view App.PreviewUploadImage.fileField}}
+                {{view previewImageView width="200" height="100" srcBinding="content.myModel_src"}}
+            {{/view}}
+    {{/view}}
+</script>
+
+<script>
+App = Ember.Application.create({});
+
+App.myModel = Ember.Object.create({
+    myModel_src: '',
+});
+
+App.PreviewUploadImage = Ember.View.extend({
+    fileField: Ember.TextField.extend({
+        type: 'file',
+        attributeBindings: ['name'],
+        change: function(evt) {
+            var input = evt.target;
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                var that = this;
+                reader.onload = function(e) {
+                    //that.$().parent(':eq(0)').children('img:eq(0)').attr('src', e.target.result);
+                    var view = that.getPath('parentView.previewImageView');
+                    view.printme();
+                    view.set('src', e.target.result);
+					/* since there is a two-way binding with the img src
+                    and the model, an update to one should be reflected
+                    in the other.  However, this doesn't seem to be the case
+					My guess is because I am not using the ember.js wrapper functions to update
+                    the src attribute.
+                    */
+                    console.log("Model src [" + App.myModel.get('myModel_src') + "]");
+
+                    //App.myModel.set('myModel_src', e.target.result);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        },
+        printme: function() {
+            console.log("In FilField view\n");
+        },
+    }),
+
+    previewImageView: Ember.View.extend({
+        attributeBindings: ['name', 'width', 'height', 'src'],
+        tagName: 'img',
+        viewName: 'previewImageView',
+        printme: function() {
+            console.log('in previewImageView');
+        },
+    }),
+});
+
+
+App.NotAForm = Ember.View.extend({
+    templateName: 'sample',
+    tagName: 'span',
+    alert_img: function(event) {
+        event.preventDefault();
+        alert(App.myModel.get('myModel_src'));
+    },
+});
+
+aView = App.NotAForm.create();
+aView.appendTo('body');
+
+
+</script>
+</body>
+</html>
+

@@ -1,0 +1,187 @@
+<html>
+<head>
+	<title>Ajax Test</title>
+	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="http://ajax.cdnjs.com/ajax/libs/json2/20110223/json2.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h4>Ajax Test</h4>
+        <div id="msg">
+        </div>
+    </div>
+</body>
+
+<script>
+ 
+(function(){
+
+    // from: https://github.com/MoonScript/jQuery-ajaxTransport-XDomainRequest/
+    if (!jQuery.support.cors && window.XDomainRequest) {
+        console.log("+++ XDR is available +++");
+        var httpRegEx = /^https?:\/\//i;
+        var getOrPostRegEx = /^get|post$/i;
+        var sameSchemeRegEx = new RegExp('^'+location.protocol, 'i');
+        var xmlRegEx = /\/xml/i;
+
+        // ajaxTransport exists in jQuery 1.5+
+        jQuery.ajaxTransport('text html xml json', function(options, userOptions, jqXHR){
+            // XDomainRequests must be: asynchronous, GET or POST methods, HTTP or HTTPS protocol, and same scheme as calling page
+            if (options.crossDomain && options.async && getOrPostRegEx.test(options.type) && httpRegEx.test(userOptions.url) && sameSchemeRegEx.test(userOptions.url)) {
+                var xdr = null;
+                var userType = (userOptions.dataType||'').toLowerCase();
+                return {
+                    send: function(headers, complete){
+                        xdr = new XDomainRequest();
+                        if (/^\d+$/.test(userOptions.timeout)) {
+                            xdr.timeout = userOptions.timeout;
+                        }
+                        xdr.ontimeout = function(){
+                            complete(500, 'timeout');
+                        };
+                        xdr.onload = function(){
+                            var allResponseHeaders = 'Content-Length: ' + xdr.responseText.length + '\r\nContent-Type: ' + xdr.contentType;
+                            var status = {
+                                code: 200,
+                                message: 'success'
+                            };
+                            var responses = {
+                                text: xdr.responseText
+                            };
+                            try {
+                                if (userType === 'json') {
+                                    try {
+                                        responses.json = JSON.parse(xdr.responseText);
+                                    } catch(e) {
+                                        status.code = 500;
+                                        status.message = 'parseerror';
+                                        //throw 'Invalid JSON: ' + xdr.responseText;
+                                    }
+                                } else if ((userType === 'xml') || ((userType !== 'text') && xmlRegEx.test(xdr.contentType))) {
+                                    var doc = new ActiveXObject('Microsoft.XMLDOM');
+                                    doc.async = false;
+                                    try {
+                                        doc.loadXML(xdr.responseText);
+                                    } catch(e) {
+                                        doc = undefined;
+                                    }
+                                    if (!doc || !doc.documentElement || doc.getElementsByTagName('parsererror').length) {
+                                        status.code = 500;
+                                        status.message = 'parseerror';
+                                        throw 'Invalid XML: ' + xdr.responseText;
+                                    }
+                                    responses.xml = doc;
+                                }
+                            } catch(parseMessage) {
+                                throw parseMessage;
+                            } finally {
+                                complete(status.code, status.message, responses, allResponseHeaders);
+                            }
+                        };
+                        xdr.onerror = function(){
+                            complete(500, 'error', {
+                                text: xdr.responseText
+                            });
+                        };
+                        xdr.open(options.type, options.url);
+                        xdr.send();
+                    },
+                    abort: function(){
+                        if (xdr) {
+                            xdr.abort();
+                        }
+                    }
+                };
+            }
+        });
+    }
+    else 
+    {
+        console.log("--- XDR is not available ---");
+    };
+
+ })(); 
+</script>
+
+<script>
+
+
+function callService(callId, url, verb, jsonData) {
+    logMessage(callId + ": about to call: " + url + ' (' + verb + ')');
+
+    $.support.cors = true;
+    var hostname =  new RegExp(getHostname(url));
+    var isSameDomain = hostname == '' || hostname.test(document.location.hostname);
+
+    logMessage(callId + ": isSameDomain = " + isSameDomain);
+
+    $.ajax({
+        crossDomain: (!isSameDomain),
+        async: true,
+        url: url,
+        type: verb,
+        data: jsonData,
+        xhrFields: { withCredentials: true },
+        dataType: "json",
+        beforeSend: function(xhr) {
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.setRequestHeader('Authorization', 'TESTTOKEN');
+            xhr.setRequestHeader('UserId', 6019);
+        },
+        success: function (result) {
+            logMessage(callId + ": SUCCESS: result = " + result)
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            logMessage(callId + ": ERROR: textStatus: " + textStatus + ", errorThrown: " + JSON.stringify(errorThrown))
+        }
+    });
+};
+
+function logMessage(msg) {
+    var $out = $('#msg');
+    $out.html($out.html() + '<br/>' + msg);
+};
+
+function getHostname(str) {
+    try{
+        var re = new RegExp('^(?:f|ht)tp(?:s)?\://([^/]+)', 'im');
+        return str.match(re)[1].toString();
+    }
+    catch(e){
+        return '';
+    }
+}
+
+var practiceData = '{"practiceGud":"94305818-6cf8-46a4-ab32-1486dd90a047","practiceName":"Test Practice Name","facilityGuid":"0c7eb83b-76d6-4d11-b0f7-b3ff8012150f","address1":"1234 Main St.","address2":"Suite xyz","city":"South San Francisco","state":"CA","country":"United States of America","postalCode":"94105","practicePhone":"(312) 555-1212","timeZoneOffsetFromUtc":-480,"daylightSavingsObserved":true}';
+var userData = [];
+
+</script>
+
+<script>
+
+$(document).ready(function(){
+    logMessage("*** XDR is available? " + (!jQuery.support.cors && window.XDomainRequest));
+    logMessage("host = " + document.location.hostname);
+
+    var relUri = "/ApplicationEndpoints.Practice-PracMan/api/v1";
+    var absUriStatic = "http://int-static.practicefusion.com/ApplicationEndpoints.Practice-PracMan/api/v1";
+    var absUriPfws = "http://int-pfws.practicefusion.com/ApplicationEndpoints.Practice-PracMan/api/v1";
+
+    // logMessage("<b>*** Using relative urls ***</b>");
+    // callService(1, relUri + '/ConfiguratorStatus/6019/PracticeSetup', 'GET', null);
+    // callService(2, relUri + '/ConfiguratorForms?userId=6019&formId=5', 'POST', '');
+    // callService(3, relUri + '/configuratorpractice?userId=6019&formId=3', 'PUT', practiceData);
+
+    logMessage("<b>*** Using static ***</b>");
+    callService(4, absUriStatic + '/ConfiguratorStatus/6019/PracticeSetup', 'GET', null);
+    callService(5, absUriStatic + '/ConfiguratorForms?userId=6019&formId=5', 'POST', '');
+    callService(6, absUriStatic + '/configuratorpractice?userId=6019&formId=3', 'PUT', practiceData);
+
+    // logMessage("<b>*** Using pfws ***</b>");
+    // callService(7, absUriPfws + '/ConfiguratorStatus/6019/PracticeSetup', 'GET', null);
+    // callService(8, absUriPfws + '/ConfiguratorForms?userId=6019&formId=5', 'POST', '');
+    // callService(9, absUriPfws + '/configuratorpractice?userId=6019&formId=3', 'PUT', practiceData);
+
+});
+</script>
+</html>

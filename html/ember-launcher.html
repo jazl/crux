@@ -1,0 +1,41 @@
+<html>
+<head>
+	<title>X Launcher</title>
+	<script src="libs/jquery-1.9.1.min.js"></script>
+</head>
+<body>
+	<h4>Launcher</h4>
+	<i>launces other Ember apps? Am I asking for the unpossible?!?</i>
+</body>
+<script>
+
+alert('hai');
+
+    var sessionGUID: '708254dfef084cd4bc11e4cefe55417cc6f1796df2874bd8acc678f660a10ed9',
+	var userId = '6019';
+	var moduleCode = 'PracticeSetup';
+	var url = 'http://pf-int-pmanapp1/ApplicationEndpoints.Practice/api/v1/configurator/' + userId + '/' + moduleCode;
+
+	$.support.cors = true;
+	$.ajax({
+		async: false,
+	    url: url,
+	    type: 'GET',
+	    xhrFields: { withCredentials: true },
+	    dataType: "json",
+        beforeSend: function(xhr) {
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.setRequestHeader('Authorization', sessionGUID);
+            xhr.setRequestHeader('UserId', userId);
+        },
+	    success: function (result) {
+	    	alert('yay! got result = ' + JSON.stringify(result));
+	    },
+	    error: function (jqXHR, textStatus, errorThrown) {
+	    	alert('Ajax call failed: ' + textStatus);
+	    }
+	});
+
+</script>
+</html>
+

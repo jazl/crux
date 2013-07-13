@@ -1,0 +1,119 @@
+<html>
+<head>
+	<title>X ArrayController, object literal</title>
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/rc5/handlebars.js"></script>
+	<script src="../libs/rc5/ember-1.0.0-rc.5.js"></script>
+</head>
+<body>
+	<h4>ArrayController, add/delete array objects</h4>
+	<i>demonstrates an Ember application with an array controller</i>
+	<i>As of rc5 "this" in action helper is the model, not the controller</i>
+	
+	<script type="text/x-handlebars" data-template-name="arrayapp">
+		{{ controller }}
+		{{#each user in controller }}
+			<br/>{{ view App.UsereditView contentBinding="user" }}
+		{{/each}}
+		<hr>
+		<br/>modelCount = {{ controller.modelCount }}
+		<br/><a href="#" {{ action "someFunc" this }} >Action on app controller</a>
+		<br/>"this" is {{this}}
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="useredit-template">
+		{{ controller }}
+		{{ user.id }}
+		{{ view Ember.TextField valueBinding="user.firstName" }}
+		{{ view Ember.TextField valueBinding="user.lastName" }}
+		<a href="#" name="deleteLink" >X</a>
+		<a href="#" {{ action "deleteUser" user }} >XX</a>
+	</script>
+
+</body>
+<script>
+
+var App = Em.Application.create({});
+
+App.Router.map(function(){
+	this.resource("arrayapp", { path: '/'});
+});
+
+
+App.User = Em.Object.extend({
+	id: 0,
+	firstName: null,
+	lastName: null
+});
+
+App.ArrayappController = Em.ArrayController.extend({
+	init: function() {
+		console.log("in ArrayappController init");
+	},
+	// content: function() {
+	// 	var array = 
+	// 	[
+	// 		App.User.create({id:1, firstName: "Kate", lastName: "Lawrence"}),
+	// 		App.User.create({id:2, firstName: "Sharon", lastName: "Gillette"})
+	// 	];
+	// 	return array;
+	// },
+	someFunc: function(controller) {
+		var model = controller.get('content');
+		model.push(App.User.create());
+		controller.set('content', model);
+		console.log("adding new record, model count = " + controller.get('content').length);
+	},
+	arrayDidChange: function(item, idx, removedCnt, addedCnt) {
+		console.log("array changed " + item + ", idx " + idx);
+	},
+	modelCount: function() {
+		//return this.get('content').length;
+		return -1;
+	}.property('content.@each')
+});
+
+App.ArrayappRoute = Em.Route.extend({
+	model: function() {
+		console.log("in arrayapproute model");
+		var m = [
+			App.User.create({id:1, firstName: "Kate", lastName: "Lawrence"}),
+			App.User.create({id:2, firstName: "Sharon", lastName: "Gillette"}),
+			App.User.create()
+		];
+		return m;
+	}
+});
+
+App.UsereditRoute = Em.Route.extend({
+	model: function(){
+		console.log("in UsereditRoute model...");
+		return App.User.create();
+	}
+});
+
+App.UsereditController = Em.ObjectController.extend({
+	init: function(){
+		console.log("in UsereditController init...");
+	},
+	deleteUser: function(model) {
+		console.log("deleting " + JSON.stringify(model));
+	}
+});
+
+App.UsereditView = Em.View.extend({
+	controller: App.UsereditController.create(),
+	templateName: "useredit-template",
+	click: function(evt) {
+		if(evt.target.name==="deleteLink"){
+			alert('hai');
+			return false;
+		}
+	}
+});
+
+
+
+</script>
+</html>
+

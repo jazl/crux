@@ -1,0 +1,54 @@
+<html>
+<head>
+	<title>X ArrayController push/remove object</title>
+	<script src="libs/jquery-1.9.1.min.js"></script>
+	<script src="libs/handlebars.js"></script>
+	<script src="libs/ember-1.0.0-rc.1.js"></script>
+</head>
+<body>
+	<h4>ArrayController with 2-way binding</h4>
+	<i>demonstrates an Ember application with an array controller, pushObject/removeObject, using POJOs</i>
+	
+	<script type="text/x-handlebars" >
+		{{ controller }}
+		{{#each user in controller }}
+			<br/>
+			<a href="#" {{ action "delete" user}}>X</a>
+			{{ user.id }} {{ user.firstName }} {{ user.lastName }}
+		{{/each}}
+		<hr>
+		<a href="#" {{ action "insert" }}>Insert</a>
+	</script>
+
+</body>
+<script>
+
+var App = Ember.Application.create({});
+
+App.ApplicationController = Ember.ArrayController.extend({
+	init: function() {
+		console.log("in ApplicationController init");
+	},
+	insert: function() {
+		this.get('content').pushObject({"id":0, "firstName":"","lastName":""});
+		console.log("inserted new user, length now " + this.get('content').length);
+	},
+	delete: function(model) {
+		console.log("deleting " + JSON.stringify(model));
+	}
+});
+
+App.ApplicationRoute = Ember.Route.extend({
+	model: function() {
+		console.log("in ApplicationRoute model");
+		return [
+			{"id":1, "firstName":"Kate","lastName":"Lawrence"},
+			{"id":2, "firstName":"Sharon","lastName":"Gillette"},
+			{"id":0, "firstName":"","lastName":""}
+		];
+	}
+});
+
+</script>
+</html>
+

@@ -1,0 +1,52 @@
+<html>
+<head>
+	<title>Ember Files</title>
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/handlebars.js"></script>
+	<script src="../libs/ember-1.0.0-rc.1.js"></script>
+</head>
+<body>
+	<h4>Ember file upload with preview</h4>
+	<p>from here:  
+    <br/>http://stackoverflow.com/questions/9200000/file-upload-with-ember-data
+    </p>
+
+<script type="text/x-handlebars">
+    <p></p>
+    <br/>File upload view: 
+    <br/>{{view App.UploadFileView name="upload"}}
+
+    <p></p>
+    uploadFileName = {{uploadFileName}}
+    <br/>File input control w/ binding?: 
+    <br/><input id="fileupload" type="file" name="files[]" {{bindAttr value=uploadFileName}}>
+</script>
+
+<script>
+App = Ember.Application.create({});
+
+App.UploadFileView = Ember.TextField.extend({
+    type: 'file',
+    attributeBindings: ['name'],
+    change: function(evt) {
+        debugger;
+      var self = this;
+      var input = evt.target;
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        var that = this;
+        reader.onload = function(e) {
+          var fileToUpload = e.srcElement.result;
+          var person = PersonApp.Person.createRecord({ username: 'heyo', attachment: fileToUpload });
+          self.get('controller.target').get('store').commit();
+        }
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+});
+
+
+</script>
+</body>
+</html>
+

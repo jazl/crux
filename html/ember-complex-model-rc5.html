@@ -1,0 +1,62 @@
+<html>
+<head>
+	<title>X WTF is this?</title>
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/rc5/handlebars.js"></script>
+	<script src="../libs/rc5/ember-1.0.0-rc.5.js"></script>
+</head>
+<body>
+	<h4>rc.5 version</h4>
+	<i>demonstrates an Ember application with an array controller</i>
+	<i>As of rc5 "this" in action helper is the model, not the controller</i>
+	
+	<script type="text/x-handlebars">
+		<br/>"controller" is {{ controller }}
+		{{ view App.PracticesummaryView }}
+		{{ view App.UsersummaryView }}
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="practice-summary">
+		<br/>controller.practice.practiceName = {{ controller.practice.practiceName }}
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="user-summary">
+		<br/>controller.user.firstName = {{ controller.user.firstName }}
+		<br/>controller.user.lastName = {{ controller.user.lastName }}
+	</script>
+
+</body>
+<script>
+
+var App = Ember.Application.create({});
+
+App.ApplicationRoute = Ember.Route.extend({
+	model: function() {
+
+		var data = {
+			practice: {
+				practiceName: "Practice name"
+			},
+			user: {
+				firstName: "Sam",
+				lastName: "Smith"
+			}
+		};
+
+		return data;
+	}
+});
+
+App.ApplicationController = Ember.ObjectController.extend();
+
+App.PracticesummaryView = Ember.View.extend({
+	templateName: "practice-summary"
+});
+
+App.UsersummaryView = Ember.View.extend({
+	templateName: "user-summary"
+});
+
+</script>
+</html>
+

@@ -1,0 +1,140 @@
+<html>
+<head>
+	<title>X Ember/jQV</title>
+	<script src="libs/jquery-1.9.1.min.js"></script>
+	<script src="libs/jquery.validate.min.js"></script>
+	<script src="libs/handlebars.js"></script>
+	<script src="libs/ember-1.0.0-rc.1.js"></script>
+	<script src="libs/jquery.maskedinput.min.js"></script>
+</head>
+<body>
+	<h4>jQuery Validation 'n Ember</h4>
+	<i>Demonstrates use of jQuery Validation plugin w/ Ember, dynamically changing rules</i>
+
+	<script type="text/x-handlebars" id="another-tmpl">
+		<form id="anotherForm">
+			<br/>Phone: {{ view App.ValidatingTextField 
+								valueBinding="phone" 
+								id="phone" 
+								name="phone" }}
+			Country: {{ view Ember.Select
+								contentBinding='App.countriesBindings'
+								valueBinding="country" 
+								id="country" 
+								name="country" 
+							    optionLabelPath="content.text"
+							    optionValuePath="content.code"
+							}}
+			<br/><input type="submit">
+		</form>
+		<br/>Controller = {{ controller }}
+	</script>	
+</body>
+<script>
+
+var App = Em.Application.create({});
+
+App.countriesBindings = Ember.ArrayController.create({
+	content:[
+		Ember.Object.create({code:"AU",text:"Australia"}),
+		Ember.Object.create({code:"TH",text:"Thailand"}),
+		Ember.Object.create({code:"US",text:"United States"})
+	]
+});
+
+App.ValidatingTextField = Ember.TextField.extend({
+	attributeBindings: [ 'name', 'data-validation-group' ]
+});
+
+App.Router.map(function(){
+	this.resource('another', { path:'/' });
+})
+
+App.AnotherRoute = Em.Route.extend({
+ 	model: function() {
+		console.log("in AnotherRoute model hook... ");
+		var o = Em.Object.create({
+ 			phone: '4155551212',
+ 			country: 'US'
+ 		}); 
+ 		return o;
+ 	},
+
+	setupController: function(controller, model) {
+		console.log("in AnotherRoute setupController, controller = " + controller);
+		console.log("in AnotherRoute setupController, model = " + JSON.stringify(model));
+		controller.set('content', model);
+	}
+ });
+
+App.AnotherController = Em.ObjectController.extend({
+	init: function() {
+		console.log("In AnotherController init, is model set? " + this.content);
+	}
+
+});
+
+App.AnotherView = Em.View.extend({
+	templateName: 'another-tmpl',
+	didInsertElement: function() {
+		
+		$.mask.definitions['X']="[A-Za-z0-9 '-]";
+
+		console.log('in view AnotherView didInsertElement...');
+		var frm = $('#anotherForm');
+		frm.validate({
+			rules: {
+				phone: { required: true }
+			}
+		});
+
+		frm.submit(function(event){
+			console.log("submitting valid form? " + frm.valid());
+			event.preventDefault();
+		});
+
+		Ember.run.scheduleOnce('afterRender', this, 'setValidations');
+
+		// TODO: above an alternative (better?) to the following:
+		//Ember.run.next(function() {
+		// ... stuff done in setValidations
+		//});
+
+	},
+
+	setValidations: function() {
+		console.log("country value in view's didInsertElement (in setValidations) = " 
+			+ $('#country option:selected').val());
+
+		var USmask = '(999)999-9999';
+
+		if ($('#country').val() == "US") {
+			$('#phone').mask(USmask);
+		}
+
+		$('#country').on('change', function(evt) {
+			if(evt.target.value != "US"){
+				$('#phone').unmask(USmask);
+			}
+			else{
+				$('#phone').mask(USmask);
+			}
+			console.log("country value = " + $('#country option:selected').val());
+			evt.preventDefault();
+		});
+
+	}
+	//click: function(event) { alert('hai from view'); }
+});
+
+</script>
+
+<script>
+$(document).ready(function() {
+	console.log("country value at doc ready = " + $('#country option:selected').val());
+
+});
+</script>
+
+</html>
+

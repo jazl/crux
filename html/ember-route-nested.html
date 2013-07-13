@@ -1,0 +1,76 @@
+<html>
+<head>
+	<title>X Nested Routes</title>
+	<script src="libs/jquery-1.9.1.min.js"></script>
+	<script src="libs/handlebars.js"></script>
+	<script src="libs/ember-1.0.0-rc.1.js"></script>
+</head>
+<body>
+	<h4>Nested Routes</h4>
+	<i>routes and params</i>
+	
+	<!-- animals gets rendered into this outlet -->
+	<script type="text/x-handlebars" data-template-name="application">
+	    <h1>{{#linkTo "animals"}}Hello from Ember.js</h1>{{/linkTo}}
+	    application outlet: {{outlet}}
+	</script>
+
+	<!-- animals/index and pets get rendered into this outlet -->
+	<script type="text/x-handlebars" data-template-name="animals">
+	    animals outlet: {{outlet}}
+	</script>
+
+	<!-- no outlet here because animals/index has no child routes -->
+	<script type="text/x-handlebars" data-template-name="animals/index">
+	    {{#linkTo "pets"}}This is animals list{{/linkTo}}
+	</script>
+
+	<!-- pets/index and pets/new get rendered into this outlet -->
+	<script type="text/x-handlebars" data-template-name="wild/pets">
+	    wild/pets outlet: {{outlet}}
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="pets/index">
+	    {{#linkTo "pets.new"}}This is pets list{{/linkTo}}
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="pets/new">
+	    This is pet creation
+	</script>
+
+</body>
+<script>
+
+// from here:
+// http://stackoverflow.com/questions/15163869/nested-routes-rendering-into-same-template-outlet-breaks-on-browser-back-button
+
+App = Ember.Application.create({});
+
+App.Router.map(function(){
+    this.resource("animals", function(){
+        // this.route("index"); at path /animals is implicit
+        this.resource("pets", function(){
+              // this.route("index"); at path /animals/pets is implicit
+              this.route("new")
+        })
+    })
+});
+
+// You don't really need any of these route definitions now;
+// I'm including them for clarity
+App.AnimalsRoute = Ember.Route.extend();
+App.AnimalsIndexRoute = Ember.Route.extend();
+
+App.PetsRoute = Ember.Route.extend();
+App.PetsIndexRoute = Ember.Route.extend();
+App.PetsNewRoute = Ember.Route.extend();
+
+// Not sure why you need to use a custom template name here, 
+// but it should work fine
+App.PetsView = Ember.View.extend({
+    templateName : 'wild/pets'
+});
+
+</script>
+</html>
+
