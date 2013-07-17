@@ -1,0 +1,65 @@
+<html>
+<head>
+	<title>Ember.set</title>
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/jquery.validate.min.js"></script>
+	<script src="../libs/rc5/handlebars.js"></script>
+	<script src="../libs/rc5/ember-1.0.0-rc.5.js"></script>
+</head>
+<body>
+	<h4>Ember.set</h4>
+	<i>demonstrates a basic Ember application</i>
+	<script type="text/x-handlebars">
+		firstName:{{firstName}}
+        <br/>lastName:{{lastName}}
+        <br/><button {{action "emberset"}}>Ember.set</button>
+        <br/><button {{action "pojoset"}}>POJO set</button>
+	</script>
+</body>
+<script>
+
+var App = Em.Application.create({});
+
+// extending the application route so we can pass back a model
+App.ApplicationRoute = Em.Route.extend({
+	model: function(){
+		return Em.Object.create({
+			firstName: 'Debbie',
+			lastName: 'Roloff-Ember-Object'
+		});
+//        return {
+//            firstName: 'Debbie',
+//            lastName: 'Roloff-POJO'
+//        };
+	}
+});
+
+// extending the application controller so we can define actions here
+App.ApplicationController = Em.ObjectController.extend({
+	controllerContent: function() {
+		return this.get('content');
+	}.property(),
+	init: function() {
+		console.log("In ApplicationController init, content = " + this.get('content'));
+	},
+	emberset: function(model){
+		console.log('in emberset');
+        var model = this.get('content');
+        Ember.set(model,'firstName','emberset firstname');
+    },
+    pojoset: function(model){
+        console.log('in pojoset');
+        var model = this.get('content');
+        model.firstName = 'pojoset fristname'
+    }
+});
+
+// tried extending the application view so we  so we can define actions here, but does not work this way
+// only events such as click, mouse over, etc. are captured here
+App.ApplicationView = Em.View.extend({
+	templateName: 'application'
+});
+
+</script>
+</html>
+
