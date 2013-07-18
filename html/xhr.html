@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+        <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+	</head>
+	<body>
+	</body>
+	<script>
+    $(document).ready(function(){
+        var kissMetrics = {
+            kmq: [],
+            kmkey: '010ea7d27af378d27e3fd2bf19b64895ceb30b73',
+            getScript: function(u) {
+                var $head = $('head');
+                var $s = $('<script>').attr("id","km");
+                $s.appendTo($head);
+                setTimeout(function () {
+                    var d = document, 
+                        f = d.getElementById('km'),
+                        s = d.createElement('script');
+                    s.type = 'text/javascript'; s.async = true; s.src = u;
+                    f.parentNode.insertBefore(s, f);
+                }, 1);
+            }
+        };
+
+        kissMetrics.getScript('//i.kissmetrics.com/i.js');
+        kissMetrics.getScript('//doug1izaerwt3.cloudfront.net/' + kissMetrics.kmkey + '.1.js');
+
+        kissMetrics.kmq.push("dev test - ignore");
+    })
+	</script>
+</html>
