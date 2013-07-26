@@ -2,8 +2,8 @@
 <head>
 	<title>NExternal</title>
 	<script src="../libs/jquery-1.9.1.min.js"></script>
-	<script src="../libs/rc5/handlebars.js"></script>
-	<script src="../libs/rc5/ember-1.0.0-rc.5.js"></script>
+	<script src="../libs/rc6/handlebars.js"></script>
+	<script src="../libs/rc6/ember-1.0.0-rc.6.js"></script>
 </head>
 <body>
 	<h4><a href='#'>Nested Routes w/ External</a></h4>
@@ -14,16 +14,16 @@
 	    {{#linkTo "configurator.users"}}configurator.users{{/linkTo}}
 	    {{#linkTo "configurator.erx"}}configurator.erx{{/linkTo}}
 	    {{#linkTo "configurator.labs"}}configurator.labs{{/linkTo}}
-	    {{#linkTo "labs" }}{{/linkTo}}
+	    {{#linkTo "labs" }}labs{{/linkTo}}
 	    <p></p>
-	    <div style="height:250px;width:450px;background-color:yellow;">
+	    <div style="height:250px;width:450px;background-color:#d7e2ea;">
 		    application outlet
 		    <br/>{{outlet}}
 	    <div>
 	</script>
 
 	<script type="text/x-handlebars" data-template-name="configurator">
-	    <div style="margin:10px 20px 10px 20px;height:200px;width:325px;background-color:green;">
+	    <div style="margin:10px 20px 10px 20px;height:200px;width:400px;background-color:green;">
 		    configurator: 
 		    <br/>{{outlet}}
 		    <br/>{{outlet "configurator-outlet"}}
@@ -31,29 +31,28 @@
 	</script>
 
 	<script type="text/x-handlebars" data-template-name="configurator/basic">
-	    <div style="margin:10px 20px 10px 20px;height:125px;width:225px;background-color:pink;">
+	    <div style="margin:10px 20px 10px 20px;height:125px;width:325px;background-color:pink;">
 			configurator/basic template
 		</div>
 	</script>
 
 	<script type="text/x-handlebars" data-template-name="configurator/users">
-	    <div style="margin:10px 20px 10px 20px;height:125px;width:225px;background-color:silver;">
+	    <div style="margin:10px 20px 10px 20px;height:125px;width:325px;background-color:#743466;">
 			configurator/USERS template
 		</div>
 	</script>
 
 	<script type="text/x-handlebars" data-template-name="configurator/erx">
-	    <div style="margin:10px 20px 10px 20px;height:125px;width:225px;background-color:gray;">
+	    <div style="margin:10px 20px 10px 20px;height:125px;width:325px;background-color:#edc951;">
 			configurator/ERX template
 		</div>
 	</script>
 
 	<script type="text/x-handlebars" data-template-name="configurator/labs">
-	    <div style="margin:10px 20px 10px 20px;height:125px;width:225px;background-color:#dd0000;">
+	    <div style="margin:10px 20px 10px 20px;height:125px;width:325px;background-color:#dd0000;">
 			configurator/labs template...
 			<p></p>
 			This is where I want the labs signup page to render...
-			{{ render "labs"}}
 		</div>
 	</script>
 
@@ -65,13 +64,25 @@
 			<br/>testProperty: {{testProperty}}
 			<br/>anotherProperty: {{anotherProperty}}
 			<br/><button {{ action "labsConnect" }}>Press this</button>
+			{{outlet}}
 	    </div>
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="labs/main">
+	 	Prop: {{foo}}
 	</script>
 
 </body>
 <script>
 
-App = Ember.Application.create({});
+App = Ember.Application.create({
+	LOG_TRANSITIONS: true,
+	LOG_TRANSITIONS_INTERNAL: true
+});
+
+function labRoutes() {
+	this.route('main');
+}
 
 App.Router.map(function() {
     this.resource('practice', { path: '/practice' }, function() {
@@ -79,11 +90,11 @@ App.Router.map(function() {
             this.route('basic' );
             this.route('users' );
             this.route('erx' );
-            this.route('labs' );
+            this.resource('configurator.labs', { path: '/labs' }, labRoutes);
             this.route('summary' );
         })
     });
-    this.route('labs');
+    this.resource('labs', labRoutes);
 });
 
 
@@ -103,18 +114,38 @@ App.LabsRoute = Ember.Route.extend({
 		controller.set('model',model);
 	},
 	events: {
-		click:function(evt){
-			alert('click handled in route');
+		labsConnect:function(evt){
+			this.transitionTo('labs.main');
 		}
 	}
 });
 
 App.LabsController = Ember.ObjectController.extend({
-	controllerProperty: "a controller property",
-	labsConnect: function() {
-		alert('hai!');
-	}
+	controllerProperty: "a controller property"
 });	
+
+Ember.Route.reopen({
+	setup: function() {
+		var oldRouteName = this.routeName;
+		this.routeName = this.get('controllerName') || this.routeName;
+		this._super.apply(this, arguments);
+		this.routeName = oldRouteName;
+	}
+});
+
+App.ConfiguratorLabsRoute = App.LabsRoute.extend({
+	controllerName: 'labs'
+});
+
+App.LabsMainRoute = Ember.Route.extend({
+	model: function() {
+		return { foo: 'bar' };
+	}
+});
+
+App.ConfiguratorLabsMainRoute = App.LabsMainRoute.extend({
+	controllerName: 'labsMain'
+});
 
 // *********************************************
 
