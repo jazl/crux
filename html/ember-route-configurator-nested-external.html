@@ -9,7 +9,6 @@
 	<h4><a href='#'>Nested Routes w/ External</a></h4>
 	
 	<script type="text/x-handlebars">
-	    {{#linkTo "practice"}}practice{{/linkTo}}
 	    {{#linkTo "configurator"}}configurator{{/linkTo}}
 	    {{#linkTo "configurator.basic"}}configurator.basic{{/linkTo}}
 	    {{#linkTo "configurator.users"}}configurator.users{{/linkTo}}
@@ -65,6 +64,7 @@
 			<br/>controllerProperty: {{controllerProperty}}
 			<br/>testProperty: {{testProperty}}
 			<br/>anotherProperty: {{anotherProperty}}
+			<br/><button {{ action "labsConnect" }}>Press this</button>
 	    </div>
 	</script>
 
@@ -144,11 +144,19 @@ App.LabsRoute = Ember.Route.extend({
 	setupController:function(controller,model){
     	console.log("in LabsRoute... setupController " + JSON.stringify(model));
 		controller.set('model',model);
+	},
+	events: {
+		click:function(evt){
+			alert('click handled in route');
+		}
 	}
 });
 
 App.LabsController = Ember.ObjectController.extend({
-	controllerProperty: "a controller property"
+	controllerProperty: "a controller property",
+	labsConnect: function() {
+		alert('hai!');
+	}
 });	
 
 // *********************************************
