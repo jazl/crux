@@ -6,7 +6,7 @@
 	<script src="../libs/rc5/ember-1.0.0-rc.5.js"></script>
 </head>
 <body>
-	<h4>Nested Routes w/ External</h4>
+	<h4><a href='#'>Nested Routes w/ External</a></h4>
 	
 	<script type="text/x-handlebars">
 	    {{#linkTo "practice"}}practice{{/linkTo}}
@@ -15,7 +15,7 @@
 	    {{#linkTo "configurator.users"}}configurator.users{{/linkTo}}
 	    {{#linkTo "configurator.erx"}}configurator.erx{{/linkTo}}
 	    {{#linkTo "configurator.labs"}}configurator.labs{{/linkTo}}
-	    {{#linkTo "labs.signup"}}labs.signup{{/linkTo}}
+	    {{#linkTo "labs" }}{{/linkTo}}
 	    <p></p>
 	    <div style="height:250px;width:450px;background-color:yellow;">
 		    application outlet
@@ -51,13 +51,20 @@
 
 	<script type="text/x-handlebars" data-template-name="configurator/labs">
 	    <div style="margin:10px 20px 10px 20px;height:125px;width:225px;background-color:#dd0000;">
-			configurator/labs signup  template...
+			configurator/labs template...
+			<p></p>
+			This is where I want the labs signup page to render...
+			{{ render "labs"}}
 		</div>
 	</script>
 
-	<script type="text/x-handlebars" data-template-name="labs/signup">
+	<script type="text/x-handlebars" data-template-name="labs">
 	    <div style="margin:10px 20px 10px 20px;height:200px;width:325px;background-color:#dddddd;">
 			<b>LABS SIGNUP</b>
+			<br/>Controller: {{controller}}
+			<br/>controllerProperty: {{controllerProperty}}
+			<br/>testProperty: {{testProperty}}
+			<br/>anotherProperty: {{anotherProperty}}
 	    </div>
 	</script>
 
@@ -76,9 +83,7 @@ App.Router.map(function() {
             this.route('summary' );
         })
     });
-    this.resource('labs', function() {
-        this.route('signup' );
-    });
+    this.route('labs');
 });
 
 App.ConfiguratorRoute = Ember.Route.extend({
@@ -124,27 +129,29 @@ App.ConfiguratorBasicController = Ember.ObjectController.extend({
 	}
 });
 
+
 // *********************************************
 
-App.ConfiguratorLabsRoute = Ember.Route.extend({
-    renderTemplate: function() {
-    	console.log("in ConfiguratorLabsRoute... renderTemplate hook");
-        this.render({
-            into: 'configurator'
-        });
-    }
+App.LabsRoute = Ember.Route.extend({
+	model: function() {
+    	console.log("in LabsRoute... model");
+    	var obj = Ember.Object.create({
+			testProperty:"Property from model instance",
+			anotherProperty:"prop from model"
+		});
+		return obj;
+	},
+	setupController:function(controller,model){
+    	console.log("in LabsRoute... setupController " + JSON.stringify(model));
+		controller.set('model',model);
+	}
 });
 
-App.LabsSignupRoute = Ember.Route.extend({
-    renderTemplate: function() {
-    	console.log("in LabsSignupRoute... renderTemplate hook");
-        this.render({
-        	outlet: 'configurator-outlet'
-            //into: 'configurator'
-        });
-    }
-});
+App.LabsController = Ember.ObjectController.extend({
+	controllerProperty: "a controller property"
+});	
 
+// *********************************************
 
 </script>
 </html>
