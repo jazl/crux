@@ -1,0 +1,86 @@
+<html>
+<head>
+	<title>DNR</title>
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/rc6/handlebars.js"></script>
+	<script src="../libs/rc6/ember-1.0.0-rc.6.js"></script>
+</head>
+<body>
+	<h4><a href='#'>Deeply Nested Routes</a></h4>
+	
+	<script type="text/x-handlebars">
+	    {{#linkTo "configurator"}}configurator{{/linkTo}}
+	    {{#linkTo "configurator.basic"}}configurator.basic{{/linkTo}}
+	    {{#linkTo "profile.index"}}configurator.profile{{/linkTo}}
+	    {{#linkTo "profile.form1"}}configurator.profile.form1{{/linkTo}}
+	    <p></p>
+	    <div style="height:250px;width:450px;background-color:#d7e2ea;">
+		    application outlet
+		    <br/>{{outlet}}
+	    <div>
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="configurator">
+	    <div style="margin:10px 20px 10px 20px;height:200px;width:400px;background-color:green;">
+		    configurator: 
+			<br/>Controller:{{test}}
+		    <br/>{{outlet}}
+	    </div>
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="configurator/basic">
+	    <div style="margin:10px 20px 10px 20px;height:125px;width:325px;background-color:pink;">
+			configurator/basic template
+		</div>
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="profile">
+	    <div style="margin:10px 20px 10px 20px;height:125px;width:325px;background-color:#743466;">
+			configurator/profile template...
+			<br/>Controller:{{test}}
+			<br/>Outlet:{{outlet}}
+
+		</div>
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="profile/form1">
+	    <div style="margin:10px 20px 10px 20px;height:100px;width:300px;background-color:##FFFF99;">
+			<b>configurator/profile/form1 template</b>
+			<br/>Controller:{{test}}
+		</div>
+	</script>
+
+</body>
+<script>
+
+App = Ember.Application.create({
+	LOG_TRANSITIONS: true,
+	LOG_TRANSITIONS_INTERNAL: true
+});
+
+App.Router.map(function() {
+    this.resource('practice', { path: '/practice' }, function() {
+        this.resource('configurator', { path: '/configurator'}, function() {
+            this.route('basic');
+            this.resource('profile', { path: '/profile'}, function() {
+            	this.route('form1');
+            });
+        })
+    });
+});
+
+App.ConfiguratorController = Ember.ObjectController.extend({
+	test:'(exended controller)'
+});
+
+App.ProfileController = Ember.ObjectController.extend({
+	test:'(exended controller)'
+});
+
+App.ProfileForm1Controller = Ember.ObjectController.extend({
+	test:'(exended controller)'
+});
+
+</script>
+</html>
+
