@@ -13,6 +13,7 @@
 	    {{#linkTo "configurator.basic"}}configurator.basic{{/linkTo}}
 	    {{#linkTo "profile.index"}}configurator.profile{{/linkTo}}
 	    {{#linkTo "profile.form1"}}configurator.profile.form1{{/linkTo}}
+	    {{#linkTo "profile.form2"}}configurator.profile.form2{{/linkTo}}
 	    <p></p>
 	    <div style="height:250px;width:450px;background-color:#d7e2ea;">
 		    application outlet
@@ -44,8 +45,15 @@
 	</script>
 
 	<script type="text/x-handlebars" data-template-name="profile/form1">
-	    <div style="margin:10px 20px 10px 20px;height:100px;width:300px;background-color:##FFFF99;">
+	    <div style="margin:10px 20px 10px 20px;height:100px;width:300px;background-color:#FFFF99;">
 			<b>configurator/profile/form1 template</b>
+			<br/>Controller:{{test}}
+		</div>
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="profile/form2">
+	    <div style="margin:10px 20px 10px 20px;height:100px;width:300px;background-color:#EDB2C6;">
+			<b>configurator/profile/form2 template</b>
 			<br/>Controller:{{test}}
 		</div>
 	</script>
@@ -64,6 +72,7 @@ App.Router.map(function() {
             this.route('basic');
             this.resource('profile', { path: '/profile'}, function() {
             	this.route('form1');
+            	this.route('form2');
             });
         })
     });
@@ -78,6 +87,10 @@ App.ProfileController = Ember.ObjectController.extend({
 });
 
 App.ProfileForm1Controller = Ember.ObjectController.extend({
+	test:'(exended controller)'
+});
+
+App.ProfileForm2Controller = Ember.ObjectController.extend({
 	test:'(exended controller)'
 });
 
