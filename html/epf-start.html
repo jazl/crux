@@ -2,7 +2,6 @@
 <head>
 	<title>EPF</title>
 	<script src="../libs/jquery-1.9.1.min.js"></script>
-	<script src="../libs/jquery.validate.min.js"></script>
 	<script src="../libs/rc6/handlebars-1.0.0-rc.4.js"></script>
 	<script src="../libs/rc6/ember-1.0.0-rc.6.js"></script>
 	<script src="../libs/epf/epf.js"></script>
@@ -32,42 +31,57 @@
 		</form>
 		<hr />
 		<ol>Notes:
-			<li>Note use of itemViewClass="Ember.View" to prevent littering the DOM with all those "metamorph" script tags. 
-			See https://github.com/emberjs/ember.js/issues/1893
-			</li>
+
 		</ol>
 	</script>	
 </body>
 <script>
 
-var App = Em.Application.create({});
+App = Em.Application.create({
+	LOG_TRANSITIONS: true,
+	LOG_TRANSITIONS_INTERNAL: true
+});
 
 // extending the application route so we can pass back a model
 App.ApplicationRoute = Em.Route.extend({
 	model: function(){
-		debugger;
-		var patient = App.Patient.find(2);
+		// Ember-data style
+		//var patient = App.Patient.find(2);
+
+		// EPF style
+		console.log('loading EPF style');
+		var patient = this.session.load('patient', 2);
+
+		// var patient = { 
+		// 	id: 1,
+		//     firstName: 'Mary',
+		//     lastName: 'Smith-Fixture',
+		//     email: 'mary.smith@smith-fixture.com',
+		//     dateOfBirth: '12/15/1955',
+		//     patientId: 1 
+		// };
+
 		return patient;
 	}
 });
 
 // extending the application controller so we can define actions here
-App.ApplicationController = Em.ObjectController.extend({
-	// save function defined here, cannot be defined in view
-	commit: function(model){
-		//alert('in ApplicationController save. Name: ' + model.get('firstName') + ' ' + model.get('lastName'));
-		model.store.commit();
-	},
-	delete: function(model){
-		model.deleteRecord();
-		//model.store.commit();
-	}
-});
+// App.ApplicationController = Em.ObjectController.extend({
+// 	// save function defined here, cannot be defined in view
+// 	commit: function(model){
+// 		//alert('in ApplicationController save. Name: ' + model.get('firstName') + ' ' + model.get('lastName'));
+// 		model.store.commit();
+// 	},
+// 	delete: function(model){
+// 		model.deleteRecord();
+// 		//model.store.commit();
+// 	}
+// });
 
 
-Ep.RestAdapter.configure("plurals", {
-    patient: "patients"
-});
+// Ep.RestAdapter.configure("plurals", {
+//     patient: "patients"
+// });
 
 Ep.RestAdapter.reopen({
     url: 'http://localhost/EhrServiceWrapper/api'

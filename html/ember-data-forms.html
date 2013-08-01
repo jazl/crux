@@ -45,7 +45,7 @@ var App = Em.Application.create({});
 // extending the application route so we can pass back a model
 App.ApplicationRoute = Em.Route.extend({
 	model: function(){
-		var patient = App.Patient.find(2);
+		var patient = App.Patient.find(1);
 		return patient;
 	}
 });
@@ -69,8 +69,8 @@ DS.RESTAdapter.configure("plurals", {
 });
 
 DS.RESTAdapter.reopen({
-    //url: 'http://localhost/EhrServiceWrapper/api'
-    url: 'http://localhost:52892/api'
+    url: 'http://localhost/EhrServiceWrapper/api'
+    //url: 'http://localhost:52892/api'
 });
 
 App.Store = DS.Store.extend({
