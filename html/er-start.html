@@ -1,0 +1,107 @@
+<html>
+<head>
+	<title>Ember Resource</title>
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/jquery.validate.min.js"></script>
+	<script src="../libs/rc6/handlebars-1.0.0-rc.4.js"></script>
+	<script src="../libs/rc6/ember-1.0.0-rc.6.js"></script>
+	<script src="../libs/er/ember-resource.js"></script>
+</head>
+<body>
+	<h4>Ember Resource</h4>
+	<i>... for people who need to persist stuff ...</i>
+	<script type="text/x-handlebars">
+		<form id="mainform">
+			<br/>Id: {{ id }}
+			<br/>First Name: {{ view Ember.TextField valueBinding="firstName" itemViewClass="Ember.View" }}
+			<br/>Last Name: {{ view Ember.TextField valueBinding="lastName" itemViewClass="Ember.View"}}
+			<br/>Email: {{ view Ember.TextField valueBinding="email" itemViewClass="Ember.View"}}
+			<br/>Date of Birth: {{ view Ember.TextField valueBinding="dateOfBirth" }}
+			<br/>
+			<table>
+				<tr><td>isLoaded</td><td>{{model.isLoaded}}</td></tr>
+				<tr><td>isNew</td><td>{{model.isNew}}</td></tr>
+				<tr><td>isSaving</td><td>{{model.isSaving}}</td></tr>
+				<tr><td>isDirty</td><td>{{model.isDirty}}</td></tr>
+				<tr><td>isDeleted</td><td>{{model.isDeleted}}</td></tr>
+				<tr><td>isError</td><td>{{model.isError}}</td></tr>
+				<tr><td>isValid</td><td>{{model.isValid}}</td></tr>
+			</table>
+			<button {{ action "commit" this }}>Commit</button>
+			<button {{ action "delete" this }}>Delete</button>
+		</form>
+		<hr />
+		<ol>Notes:
+			<li>Note use of itemViewClass="Ember.View" to prevent littering the DOM with all those "metamorph" script tags. 
+			See https://github.com/emberjs/ember.js/issues/1893
+			</li>
+		</ol>
+	</script>	
+</body>
+<script>
+
+var App = Em.Application.create({});
+
+// extending the application route so we can pass back a model
+App.ApplicationRoute = Em.Route.extend({
+	model: function(){
+		debugger;
+		var patient = App.Patient.find(2);
+		return patient;
+	}
+});
+
+// extending the application controller so we can define actions here
+App.ApplicationController = Em.ObjectController.extend({
+	// save function defined here, cannot be defined in view
+	commit: function(model){
+		//alert('in ApplicationController save. Name: ' + model.get('firstName') + ' ' + model.get('lastName'));
+		model.store.commit();
+	},
+	delete: function(model){
+		model.deleteRecord();
+		//model.store.commit();
+	}
+});
+
+
+Ep.RestAdapter.configure("plurals", {
+    patient: "patients"
+});
+
+Ep.RestAdapter.reopen({
+    url: 'http://localhost/EhrServiceWrapper/api'
+    //url: 'http://localhost:52892/api'
+});
+
+// App.Patient.FIXTURES = [
+// 	{
+// 	    id: 1,
+// 	    firstName: 'Mary',
+// 	    lastName: 'Smith-Fixture',
+// 	    email: 'mary.smith@smith-fixture.com',
+// 	    dateOfBirth: '12/15/1955',
+// 	    patientId: 1
+// 	},
+// 	{
+// 	    id: 2,
+// 	    firstName: 'Sharon',
+// 	    lastName: 'Gillette-Fixture',
+// 	    email: 'sgillette@pridair.com',
+// 	    dateOfBirth: '7/11/1955',
+// 	    patientId: 2
+// 	}	
+// ];
+
+App.Patient = Ep.Model.extend({
+    email: 			Ep.attr('string'),
+    firstName: 		Ep.attr('string'),
+    lastName: 		Ep.attr('string'),
+    middleInitial: 	Ep.attr('string'),
+    dateOfBirth: 	Ep.attr('string'),
+    patientId: 		Ep.attr('string')
+});
+
+</script>
+</html>
+
