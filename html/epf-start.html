@@ -5,7 +5,6 @@
 	<script src="../libs/jquery.validate.min.js"></script>
 	<script src="../libs/rc6/handlebars-1.0.0-rc.4.js"></script>
 	<script src="../libs/rc6/ember-1.0.0-rc.6.js"></script>
-	<script src="../libs/rc6/ember-data-0.13.js"></script>
 	<script src="../libs/epf/epf.js"></script>
 </head>
 <body>
@@ -66,26 +65,13 @@ App.ApplicationController = Em.ObjectController.extend({
 });
 
 
-// DS.RESTAdapter.configure("plurals", {
-//     patient: "patients"
-// });
+Ep.RestAdapter.configure("plurals", {
+    patient: "patients"
+});
 
-// DS.RESTAdapter.reopen({
-//     //url: 'http://localhost/EhrServiceWrapper/api'
-//     url: 'http://localhost:52892/api'
-// });
-
-// App.Store = DS.Store.extend({
-// 	adapter: 'DS.FixtureAdapter',
-// 	revision: 13
-// });
-
-DS.RESTAdapter.map('App.Patient', {
-    firstName: { key: 'firstName'},
-    middleInitial: { key: 'middleInitial' },
-    lastName: { key: 'lastName' },
-    dateOfBirth: { key: 'dateOfBirth' },
-    patientId: { key: 'patientId' }
+Ep.RestAdapter.reopen({
+    url: 'http://localhost/EhrServiceWrapper/api'
+    //url: 'http://localhost:52892/api'
 });
 
 // App.Patient.FIXTURES = [
