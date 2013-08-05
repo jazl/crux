@@ -1,0 +1,56 @@
+<html>
+<head>
+	<title>X Views</title>
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/jquery.validate.min.js"></script>
+	<script src="../libs/rc6/handlebars-1.0.0-rc.4.js"></script>
+	<script src="../libs/rc6/ember-1.0.0-rc.6.js"></script>
+	<script src="../libs/rc6/ember-data-0.13.js"></script>
+	<style>
+	.viewclass {
+		width:150px;
+		height:150px;
+		background-color: yellow;
+	}
+	</style>
+</head>
+<body>
+	<h4>Views</h4>
+	<i>Stuff about views</i>
+	<p></p>
+
+	<script type="text/x-handlebars">
+		<br/>This is the index view template
+		{{controller}}
+		{{#each rec in controller}}
+		<br/>MyTextView: {{ view App.MyTextView valueBinding=rec.name }}
+		{{/each}}
+	</script>
+
+</body>
+<script>
+
+var App = Ember.Application.create({
+	LOG_TRANSITIONS: true
+});
+
+App.ApplicationRoute = Ember.Route.extend({
+	model:function(params){
+		return [
+			{name:"first record"},
+			{name:"record number 2"},
+			{name:"33333"}
+		]
+	}
+});
+
+App.ApplicationController = Ember.ArrayController.extend();
+
+App.MyTextView = Ember.View.extend({
+	tagName: 'input',
+	attributeBindings: ['value', 'disabled']
+});
+
+</script>
+</html>
+
