@@ -1,0 +1,94 @@
+<html>
+<head>
+	<title>Ember-Data with multi-level model</title>
+	<meta name="description" content="demonstrates Ember Data application using multiple models with a single controller">
+	<meta name="keywords" content="ember-data,model,itemViewClass,Ember.View">
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/jquery.validate.min.js"></script>
+	<script src="../libs/rc6/handlebars-1.0.0-rc.4.js"></script>
+	<script src="../libs/rc6/ember-1.0.0-rc.6.js"></script>
+	<script src="../libs/rc6/ember-data-0.13.js"></script>
+</head>
+<body>
+	<script type="text/x-handlebars">
+		{{controller}}
+		<div>Labs - separate iterators</div>
+		<br/>
+        {{#each lab in controller}}
+        	<br/>Lab Name:{{lab.name}}
+            {{#each account in lab.accounts}}
+        		<br/>Account:{{account}}
+            {{/each}}
+		{{/each}}
+		<div>Labs - single iterators</div>
+		<br/>
+        {{#each lab in controller}}
+        	<br/>Lab Name:{{lab.name}}
+            {{#each account in lab.accounts}}
+        		<br/>Account:{{account}}
+            {{/each}}
+		{{/each}}
+		<hr>
+        <table class="table configurator-summary-users">
+            <thead>
+            <tr>
+                <th>Lab Name</th>
+                <th>Account</th>
+            </tr>
+            </thead>
+            <tbody>
+                {{#each lab in labsSubmittedFlat}}
+                    <tr>
+                        <td>
+                            {{lab.name}}
+                        </td>
+                        <td>
+                            {{lab.account}}
+                        </td>
+                    </tr>
+                {{/each }}
+            </tbody>
+        </table>
+		
+	</script>	
+
+</body>
+<script>
+
+var labs = [
+	{ "name":"Lab Abcdefg", "accounts": [ "10101" ] }, 
+	{ "name":"xyz", "accounts": [ "1234","00000" ] } 
+];
+
+var App = Em.Application.create({});
+
+// extending the application route so we can pass back a model
+App.ApplicationRoute = Em.Route.extend({
+	model: function(params){
+		return labs;
+	}
+});
+
+App.ApplicationController = Ember.ArrayController.extend({
+	labsSubmitted: function() {
+		return labs;
+	}.property(),
+	labsSubmittedFlat: function() {
+		var result = [];
+		$.each(labs, function(idx,lab){
+			$.each(lab.accounts,function(idx,account){
+				result.push({name:lab.name,account:account});
+			});
+		});
+		return result;
+	}.property()
+});
+
+</script>
+<script>
+$().ready(function(){
+	$('<h4>'+$('title').text()+'</h4>').appendTo('body');
+	$('<i>'+$('meta[name="description"]').attr('content')+'</i>').appendTo('body');
+});
+</script>
+</html>
