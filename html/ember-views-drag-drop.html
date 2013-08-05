@@ -1,0 +1,99 @@
+<html>
+<head>
+	<title>Ember Views</title>
+	<meta name="description" content="demonstrates Ember View support for drag/drop">
+	<meta name="keywords" content="views,drag,drop">
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/jquery.validate.min.js"></script>
+	<script src="../libs/rc6/handlebars-1.0.0-rc.4.js"></script>
+	<script src="../libs/rc6/ember-1.0.0-rc.6.js"></script>
+	<script src="../libs/rc6/ember-data-0.13.js"></script>
+	<style>
+	.viewclass {
+		width:150px;
+		height:150px;
+		background-color: yellow;
+	}
+	</style>
+</head>
+<body>
+	<script type="text/x-handlebars">
+		outlet: {{ outlet }}
+	</script>
+
+	<script type="text/x-handlebars" id="index">
+		<br/>This is the index view template
+		<br/>someview: (between){{ view App.SomeView }}(here)
+		<br/>MyTextView: {{ view App.MyTextView }}		
+		<br/>Draggable Item: {{ view App.DraggableItem }}
+		<br/>Drop area: {{ view App.Trash }}
+	</script>
+
+	<script type="text/x-handlebars" id="draggableitem">
+		<div>This is a draggable item!</div>
+	</script>
+
+	<script type="text/x-handlebars" id="trash">
+		<div>Pretend that there is a trash can here!</div>
+	</script>
+
+</body>
+<script>
+
+var App = Ember.Application.create({
+	LOG_TRANSITIONS: true
+});
+
+App.SomeView = Ember.View.extend({
+	tagName: 'div',
+	classNames: ['viewclass'],
+	classNameBindings: ['viewProperty'],
+	viewProperty: function() {
+		return "boundclassname";
+	}.property(),
+	click: function(){
+		alert('clicked!');
+	}
+});
+
+App.MyTextView = Ember.View.extend({
+	tagName: 'input',
+	attributeBindings: ['value', 'disabled'],
+	value: 'Hardcoded value',
+	disabled: true
+});
+
+App.DraggableItem = Ember.View.extend({
+	tagName: 'li',
+	templateName: 'draggableitem',
+	attributeBindings: ['title','draggable'],
+	title: 'Drag me',
+	draggable: 'true',
+	dragStart: function(evt) {
+		evt.dataTransfer.setData('text/data',this.get('content.id'));
+	}
+});
+
+App.Trash = Ember.View.extend({
+	tagName:'li',
+	templateName:'trash',
+	dragOver: function(evt){
+		evt.preventDefault();
+		return;
+	},
+	drop: function(evt) {
+		var id = evt.dataTransfer.getData('text/data');
+		var record = model.findProperty('id', Number(id));
+		// Do other stuff here
+	}
+})
+
+</script>
+<script>
+$().ready(function(){
+	$('<h4>'+$('title').text()+'</h4>').appendTo('body');
+	$('<i>'+$('meta[name="description"]').attr('content')+'</i>').appendTo('body');
+});
+</script>
+</html>
+

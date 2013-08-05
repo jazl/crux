@@ -1,0 +1,206 @@
+<html>
+<head>
+	<title>Ember-Data with models and form</title>
+	<meta name="description" content="demonstrates Ember Data application using multiple models with a single controller">
+	<meta name="keywords" content="ember-data,model,itemViewClass,Ember.View">
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/jquery.validate.min.js"></script>
+	<script src="../libs/rc6/handlebars-1.0.0-rc.4.js"></script>
+	<script src="../libs/rc6/ember-1.0.0-rc.6.js"></script>
+	<script src="../libs/rc6/ember-data-0.13.js"></script>
+</head>
+<body>
+	<script type="text/x-handlebars">
+		<form id="mainform">
+			{{model}}
+			<table>
+			<tr><td>Id: </td><td>{{ id }} </td></tr>
+			<tr><td>First Name: </td><td>{{input type="text" valueBinding="firstName" itemViewClass="Ember.View" }} </td></tr>
+			<tr><td>Last Name: </td><td>{{ input type="text" valueBinding="lastName" itemViewClass="Ember.View"}} </td></tr>
+			<tr><td>Email: </td><td>{{ input type="text" valueBinding="email" itemViewClass="Ember.View"}} </td></tr>
+			<tr><td>Date of Birth: </td><td>{{ input type="text" valueBinding="dateOfBirth" }} </td></tr>
+			{{#if model.providerId}}
+				<tr><td>Provider Id: </td><td>{{input type="text" valueBinding="providerId" }} </td></tr>
+				<tr><td>Practice Name: </td><td>{{input type="text" valueBinding="practiceName" }} </td></tr>
+			{{/if}}
+			</table>
+			{{ render modelstate model}}
+			<button {{ action "commit" this }}>Commit</button>
+			<button {{ action "delete" this }}>Delete</button>
+		</form>
+		<hr />
+		<ol>Notes:
+			<li>Note use of itemViewClass="Ember.View" to prevent littering the DOM with all those "metamorph" script tags. 
+			See https://github.com/emberjs/ember.js/issues/1893
+			</li>
+		</ol>
+	</script>	
+
+	<script type="text/x-handlebars" id="modelstate">
+	<div>
+		isLoaded: {{model.isLoaded}},
+		isNew: {{model.isNew}},
+		isSaving: {{model.isSaving}},
+		isDirty: {{model.isDirty}},
+		isDeleted: {{model.isDeleted}},
+		isError: {{model.isError}},
+		isValid: {{model.isValid}}
+	</div>
+	</script>	
+
+</body>
+<script>
+
+var App = Em.Application.create({});
+
+App.Router.map(function(){
+	// #/patient/1 	<= loads patient record with id 1
+	// #/provider/2 <= loads provider record with id 2
+	this.resource('application', {path:'/:type/:id'});
+});
+
+// extending the application route so we can pass back a model
+App.ApplicationRoute = Em.Route.extend({
+	model: function(params){
+		// load up a patient or provider depending on type requested
+		if(params.type==='patient'){
+			return App.Patient.find(params.id);
+		}
+		else{
+			return App.Provider.find(params.id);;
+		}
+	}
+});
+
+// extending the application controller so we can define actions here
+App.ApplicationController = Em.ObjectController.extend({
+	// save function defined here, cannot be defined in view
+	commit: function(model){
+		//alert('in ApplicationController save. Name: ' + model.get('firstName') + ' ' + model.get('lastName'));
+		model.store.commit();
+	},
+	delete: function(model){
+		model.deleteRecord();
+		//model.store.commit();
+	}
+});
+
+DS.RESTAdapter.configure("plurals", {
+    patient: "patients"
+});
+
+DS.RESTAdapter.reopen({
+    url: 'http://localhost/EhrServiceWrapper/api'
+    //url: 'http://localhost:52892/api'
+});
+
+App.Store = DS.Store.extend({
+	adapter: 'DS.FixtureAdapter',
+	revision: 13
+});
+
+// Person contains attrs common to patients and providers
+App.Person = DS.Model.extend({
+    email: DS.attr('string'),
+    firstName: DS.attr('string'),
+    lastName: DS.attr('string'),
+    middleInitial: DS.attr('string'),
+    dateOfBirth: DS.attr('string')
+});
+
+// Patient add patient id to person base
+App.Patient = App.Person.extend({
+    patientId: DS.attr('string')
+});
+
+// Provider adds provider-related stuff to base
+App.Provider = App.Person.extend({
+    providerId: DS.attr('string'),
+    specialty: DS.attr('string'),
+    practiceName: DS.attr('string'),
+    practiceAddress: DS.attr('string')
+});
+
+// Mappings to force adapter to keep camel-case
+DS.RESTAdapter.map('App.Patient', {
+    firstName: { key: 'firstName'},
+    middleInitial: { key: 'middleInitial' },
+    lastName: { key: 'lastName' },
+    dateOfBirth: { key: 'dateOfBirth' },
+    patientId: { key: 'patientId' }
+});
+
+// Fixture data
+
+App.Patient.FIXTURES = [
+	{
+	    id: 1,
+	    firstName: 'Mary',
+	    lastName: 'Smith-Fixture',
+	    email: 'mary.smith@smith-fixture.com',
+	    dateOfBirth: '12/15/1972',
+	    patientId: 1
+	},
+	{
+	    id: 2,
+	    firstName: 'Sharon',
+	    lastName: 'Gillette-Fixture',
+	    email: 'sgillette@pridair.com',
+	    dateOfBirth: '7/11/1955',
+	    patientId: 2
+	},
+	{
+	    id: 3,
+	    firstName: 'Rob',
+	    lastName: 'Zombie-Fixture',
+	    email: 'rob@z.org',
+	    dateOfBirth: '1/1/1966',
+	    patientId: 2
+	}	
+];
+
+App.Provider.FIXTURES = [
+	{
+	    id: 1,
+	    firstName: 'Mary',
+	    lastName: 'Smith-Fixture-Provider',
+	    email: 'mary.smith@smith-fixture.com',
+	    dateOfBirth: '12/15/1972',
+	    providerId: 1000,
+	    specialty: 'General',
+	    practiceName: 'Marys Practice',
+	    practiceAddress: '1234 Main St. Daly City, CA 94015'
+	},
+	{
+	    id: 2,
+	    firstName: 'Sharon',
+	    lastName: 'Gillette-Fixture-Provider',
+	    email: 'sgillette@pridair.com',
+	    dateOfBirth: '7/11/1955',
+	    providerId: 2212,
+	    specialty: 'Heart Transplanter',
+	    practiceName: 'SG',
+	    practiceAddress: '900 Michigan Ave, Suite A, Chicago, IL 60601'
+	},
+	{
+	    id: 3,
+	    firstName: 'Rob',
+	    lastName: 'Zombie-Fixture-Provider',
+	    email: 'rob@z.org',
+	    dateOfBirth: '1/1/1966',
+	    providerId: 3333,
+	    specialty: 'Optometry',
+	    practiceName: 'Zombie and Associates',
+	    practiceAddress: '1 Montgomery San Francisco, CA 94012'
+	}	
+];
+
+</script>
+<script>
+$().ready(function(){
+	$('<h4>'+$('title').text()+'</h4>').appendTo('body');
+	$('<i>'+$('meta[name="description"]').attr('content')+'</i>').appendTo('body');
+});
+</script>
+</html>
+
