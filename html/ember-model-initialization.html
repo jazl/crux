@@ -1,0 +1,124 @@
+<html>
+<head>
+	<title>Ember-Data with models and form</title>
+	<meta name="description" content="demonstrates Ember Data application using multiple models with a single controller">
+	<meta name="keywords" content="ember-data,model,itemViewClass,Ember.View">
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/jquery.validate.min.js"></script>
+	<script src="../libs/rc6/handlebars-1.0.0-rc.4.js"></script>
+	<script src="../libs/rc6/ember-1.0.0-rc.6.js"></script>
+	<script src="../libs/rc6/ember-data-0.13.js"></script>
+</head>
+<body>
+	<script type="text/x-handlebars">
+		<form id="mainform">
+			{{model}}
+			<table>
+			<tr><td>Id: </td><td>{{ id }} </td></tr>
+			<tr><td>First Name: </td><td>{{input type="text" valueBinding="firstName" itemViewClass="Ember.View" }} </td></tr>
+			<tr><td>Last Name: </td><td>{{ input type="text" valueBinding="lastName" itemViewClass="Ember.View"}} </td></tr>
+			<tr><td>Email: </td><td>{{ input type="text" valueBinding="email" itemViewClass="Ember.View"}} </td></tr>
+			<tr><td>Date of Birth: </td><td>{{ input type="text" valueBinding="dateOfBirth" }} </td></tr>
+			</table>
+			{{ render modelstate model}}
+			<button {{ action "commit" this }}>Commit</button>
+			<button {{ action "delete" this }}>Delete</button>
+		</form>
+	</script>	
+
+	<script type="text/x-handlebars" id="modelstate">
+	<div>
+		isLoaded: {{model.isLoaded}},
+		isNew: {{model.isNew}},
+		isSaving: {{model.isSaving}},
+		isDirty: {{model.isDirty}},
+		isDeleted: {{model.isDeleted}},
+		isError: {{model.isError}},
+		isValid: {{model.isValid}}
+	</div>
+	</script>	
+
+</body>
+<script>
+
+// JSON data used to initialize Ember model
+var jsondata = {
+    "profileGuid":"2e598554-5f42-45b3-a48e-69767d8a8bdc",
+    "firstName":"Mary",
+    "lastName":"Smith",
+    "email":"alaya@practicefusion.com",
+    "editLevel":3,
+    "isAdministrator":true,
+    "npi":null
+};
+
+var App = Em.Application.create({});
+
+App.Router.map(function(){
+	this.resource('application', {path:'/'});
+});
+
+// extending the application route so we can pass back a model
+App.ApplicationRoute = Em.Route.extend({
+	model: function(){
+		var user = App.User.createRecord(jsondata);
+		return user;
+	}
+});
+
+// extending the application controller so we can define actions here
+App.ApplicationController = Em.ObjectController.extend({
+	// save function defined here, cannot be defined in view
+	commit: function(model){
+		//alert('in ApplicationController save. Name: ' + model.get('firstName') + ' ' + model.get('lastName'));
+		model.store.commit();
+	},
+	delete: function(model){
+		model.deleteRecord();
+		//model.store.commit();
+	}
+});
+
+DS.RESTAdapter.configure("plurals", {
+    patient: "patients"
+});
+
+DS.RESTAdapter.reopen({
+    url: 'http://localhost/EhrServiceWrapper/api'
+    //url: 'http://localhost:52892/api'
+});
+
+App.Store = DS.Store.extend({
+	adapter: 'DS.FixtureAdapter',
+	revision: 13
+});
+
+// User model
+App.User = DS.Model.extend({
+    profileGuid		: DS.attr("string"),
+    firstName		: DS.attr("string", {defaultValue:"first"}),
+    lastName		: DS.attr("string", {defaultValue:"last"}),
+    email			: DS.attr("string"),
+    editLevel		: DS.attr("string"),
+    isAdministrator: DS.attr("boolean", {defaultValue:false}),
+    npi			: DS.attr("string"),
+});
+
+// Mappings to force adapter to keep camel-case
+DS.RESTAdapter.map('App.Patient', {
+    firstName: { key: 'firstName'},
+    middleInitial: { key: 'middleInitial' },
+    lastName: { key: 'lastName' },
+    dateOfBirth: { key: 'dateOfBirth' },
+    patientId: { key: 'patientId' }
+});
+
+</script>
+<script>
+$().ready(function(){
+	$('<h4>'+$('title').text()+'</h4>').appendTo('body');
+	$('<i>'+$('meta[name="description"]').attr('content')+'</i>').appendTo('body');
+});
+</script>
+</html>
+
