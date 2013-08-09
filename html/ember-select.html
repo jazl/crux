@@ -1,6 +1,6 @@
 <html>
 <head>
-	<title>EmberCustomCtls</title>
+	<title>Ember.Select</title>
 	<script src="../libs/jquery-1.9.1.min.js"></script>
 	<script src="../libs/jquery.validate.min.js"></script>
 	<script src="../libs/rc6/handlebars.js"></script>
@@ -8,25 +8,27 @@
 	<script src="../libs/rc6/ember-data-0.13.min.js"></script>
 </head>
 <body>
-	<h4>Custom Controls</h4>
-	<i>demonstrates just how lame custom controls (views) are in Ember</i>
+	<h4>Ember.Select</h4>
+	<i>Select lists in Ember</i>
 	
 	<script type="text/x-handlebars" data-template-name="application">
 		<form id="mainform">
 			{{#each user in controller}}
 				{{ view App.UserEditView contentBinding="user" }}
 			{{/each}}
-		</form>
+			{{view Ember.Select
+		       contentBinding="App.editLevelsArray"
+		       optionValuePath="content.id"
+		       optionLabelPath="content.name"
+		       itemViewClass="Ember.View"
+			 }}
+       </form>
 	</script>	
 	
 	<script type="text/x-handlebars" data-template-name="useredit-control">
 		{{ view Ember.TextField valueBinding="user.firstName" name="firstName" }}
 		{{ view Ember.TextField valueBinding="user.lastName" name="lastName" }}
-		{{ view Ember.TextField valueBinding="user.email" name="email" }}
         {{ view App.EditLevelSelect valueBinding="user.editLevel" name="editLevel" itemViewClass="Ember.View" prompt="Select role" }}
-		{{ view Ember.Checkbox checkedBinding="user.isAdmin" name="isAdmin" }}
-		<button {{ action "delete" }}>X</button>
-		{{ controller }}
 	</script>	
 </body>
 <script>
@@ -180,6 +182,13 @@ App.User.FIXTURES = [
         	console.log("init App.customControls.editLevelController");
         }
     });
+
+    App.editLevelsArray = [
+	  Ember.Object.create({name: "Staff", 		id: 0}),
+	  Ember.Object.create({name: "Nurse",   	id: 1}),
+	  Ember.Object.create({name: "N.P.",   		id: 2}),
+	  Ember.Object.create({name: "Phys./MD/DO", id: 3})
+	];
 
 </script>
 
