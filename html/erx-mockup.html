@@ -1,6 +1,6 @@
 <html>
 <head>
-	<title>Ember w/ Datatable</title>
+	<title>eRx Verification</title>
     <link rel="stylesheet" href="../css/bootstrap.css">
     <link rel="stylesheet" href="../css/DT_bootstrap.css">
 	<script src="../libs/jquery-1.9.1.min.js"></script>
@@ -46,11 +46,51 @@
 		textarea {
 			width: 115%;
 		}
+		.filters {
+			display:none;
+			position: absolute;
+			margin-left: 327px;
+			margin-top: 6px;
+		}
+		.checkbox-label {
+			left: -3px;
+			font-size: 13px;
+			width: 87px;
+			color: #5F707F;
+		}
+		.checkbox-label input[type='checkbox'] {
+			margin-top: -3px;
+		}
+		.date-filter input[type='text'] {
+			width: 100px;
+		}
 	</style>
 </head>
 <body>
 	<script type="text/x-handlebars">
 		<div class="table-area">
+		<div class="filters">
+			<span class="filters-text">Show records with status of</span>
+			<label class="checkbox-label pull-right">
+                <input id="isVoiceOptIn" class="ember-view ember-checkbox" type="checkbox" name="isVoiceOptIn" checked="checked">
+                Pending
+            </label>
+			<label class="checkbox-label pull-right">
+                <input id="isVoiceOptIn" class="ember-view ember-checkbox" type="checkbox" name="isVoiceOptIn" checked="checked">
+                Accepted
+            </label>
+			<label class="checkbox-label pull-right">
+                <input id="isVoiceOptIn" class="ember-view ember-checkbox" type="checkbox" name="isVoiceOptIn" checked="checked">
+                Denied
+            </label>
+			<label class="checkbox-label pull-right">
+                <input id="isVoiceOptIn" class="ember-view ember-checkbox" type="checkbox" name="isVoiceOptIn" checked="checked">
+                Restarted
+            </label>
+		</div>
+		<div class="date-filter">
+			Submitted between <input type="text"> and <input type="text">
+		</div>
 		<table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" id="dt">
 			<thead>
 				<tr>
