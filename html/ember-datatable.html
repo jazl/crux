@@ -1,0 +1,54 @@
+<html>
+<head>
+	<title>Ember w/ Datatable</title>
+    <link rel="stylesheet" href="../css/bootstrap.css">
+    <link rel="stylesheet" href="../css/DT_bootstrap.css">
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/rc6/handlebars.js"></script>
+	<script src="../libs/rc6/ember-1.0.0-rc.6.js"></script>
+	<script src="../libs/DataTables-1.9.4/media/js/jquery.dataTables.min.js"></script>
+	<script src="../libs/DT_bootstrap.js"></script>
+
+</head>
+<body>
+	<h4>Ember w/ Datatable</h4>
+	<i>Ember application using datatable jQuery plugin</i>
+	<script type="text/x-handlebars">
+		<table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" id="example">
+			<thead>
+				<	tr>
+					<th>First Name</th>
+					<th>Last Name</th>
+					<th>Platform(s)</th>
+					<th>Engine version</th>
+					<th>CSS grade</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+	</script>	
+</body>
+<script>
+
+var App = Ember.Application.create({});
+
+App.ApplicationView = Ember.View.extend({
+	didInsertElement: function() {
+		var oTable = $('#example').dataTable( {
+			"bProcessing": true,
+			"sAjaxSource": "../libs/DataTables-1.9.4//examples/ajax/sources/erx.txt",
+			"aoColumns": [
+				{ "mData": "firstName" },
+				{ "mData": "lastName" },
+				{ "mData": "platform" },
+				{ "mData": "version" },
+				{ "mData": "grade" }
+			]
+		} );
+	}
+})
+
+</script>
+</html>
+
