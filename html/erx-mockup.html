@@ -47,7 +47,7 @@
 			width: 115%;
 		}
 		.filters {
-			display:none;
+			display:block;
 			position: absolute;
 			margin-left: 327px;
 			margin-top: 6px;
@@ -72,24 +72,26 @@
 		<div class="filters">
 			<span class="filters-text">Show records with status of</span>
 			<label class="checkbox-label pull-right">
-                <input id="isVoiceOptIn" class="ember-view ember-checkbox" type="checkbox" name="isVoiceOptIn" checked="checked">
+                <input id="filterPending" class="ember-view ember-checkbox" type="checkbox" name="filterPending" checked="checked" value="Pending">
                 Pending
             </label>
 			<label class="checkbox-label pull-right">
-                <input id="isVoiceOptIn" class="ember-view ember-checkbox" type="checkbox" name="isVoiceOptIn" checked="checked">
+                <input id="filterAccepted" class="ember-view ember-checkbox" type="checkbox" name="filterAccepted" checked="checked" value="Accepted">
                 Accepted
             </label>
 			<label class="checkbox-label pull-right">
-                <input id="isVoiceOptIn" class="ember-view ember-checkbox" type="checkbox" name="isVoiceOptIn" checked="checked">
+                <input id="filterDenied" class="ember-view ember-checkbox" type="checkbox" name="filterDenied" checked="checked" value="Denied">
                 Denied
             </label>
 			<label class="checkbox-label pull-right">
-                <input id="isVoiceOptIn" class="ember-view ember-checkbox" type="checkbox" name="isVoiceOptIn" checked="checked">
+                <input id="filterRestarted" class="ember-view ember-checkbox" type="checkbox" name="filterRestarted" checked="checked" value="Restarted">
                 Restarted
             </label>
-		</div>
-		<div class="date-filter">
-			Submitted between <input type="text"> and <input type="text">
+			<div class="date-filter">
+				Submitted between 
+				<input type="date" id="filterStartDate" name="filterStartDate"> and 
+				<input type="date" id="filterEndDate" name="filterEndDate">
+			</div>
 		</div>
 		<table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" id="dt">
 			<thead>
@@ -225,6 +227,54 @@ App.ApplicationView = Ember.View.extend({
 				datatable.fnOpen( nTr, fnFormatDetails(datatable, nTr), 'details' );
 			}
 		} );
+
+		function refilter(criteria) {
+			// Clear old filter
+			datatable.fnFilter('');
+			// {string}: String to filter the table on
+			// {int|null}: Column to limit filtering to
+			// {bool} [default=false]: Treat as regular expression or not
+			// {bool} [default=true]: Perform smart filtering or not
+			// {bool} [default=true]: Show the input global filter in it's input box(es)
+			// {bool} [default=true]: Do case-insensitive matching (true) or not (false)
+			datatable.fnFilter(criteria, null, true, true, false, true);
+		}
+
+		$('.filters input[type="checkbox"]').on('change', function() {
+
+			// Start of a regular expression
+			var filterCriteria = '';
+			// Concatenate all the values of the checked check boxes
+			$('.filters input[type="checkbox"]:checked').each(function() {
+				filterCriteria += this.value + "|";
+			});
+
+			if(filterCriteria) {
+				// Make into proper regular expression, remove the trailing pipe character
+				filterCriteria = '(' + filterCriteria.substring(0,filterCriteria.length-1) + ')';
+				console.log('filterCriteria = ' + filterCriteria);
+				refilter(filterCriteria);
+			}
+		});
+
+		$('.filters input[type="date"]').on('change', function() {
+
+			debugger;
+			// Start of a regular expression
+			var filterCriteria = '';
+			// Concatenate all the values of the checked check boxes
+			$('.filters input[type="checkbox"]:checked').each(function() {
+				filterCriteria += this.value + "|";
+			});
+
+			if(filterCriteria) {
+				// Make into proper regular expression, remove the trailing pipe character
+				filterCriteria = '(' + filterCriteria.substring(0,filterCriteria.length-1) + ')';
+				console.log('filterCriteria = ' + filterCriteria);
+				datatable.fnFilter(filterCriteria, null, true, true, false, true);
+			}
+		});
+
 	}
 
 })
