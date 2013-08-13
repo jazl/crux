@@ -1,8 +1,8 @@
 <html>
 <head>
 	<title>eRx Verification</title>
-	<meta name="description" content="Ember w/ DataTable plug-in (jQuery style). Applying filtering programmatically using check boxes">
-    <meta name="keywords" content="DataTable">
+	<meta name="description" content="Ember w/ DataTable plug-in (jQuery style). Applying filtering programmatically using check boxes and regular expressions">
+    <meta name="keywords" content="DataTable,fnFilter">
     <link rel="stylesheet" href="../css/bootstrap.css">
     <link rel="stylesheet" href="../css/DT_bootstrap.css">
 	<script src="../libs/jquery-1.9.1.min.js"></script>
@@ -71,29 +71,9 @@
 <body>
 	<script type="text/x-handlebars">
 		<div class="table-area">
-		<div class="filters">
-			<span class="filters-text">Show records with status of</span>
-			<label class="checkbox-label pull-right">
-                <input id="filterPending" class="ember-view ember-checkbox" type="checkbox" name="filterPending" checked="checked" value="Pending">
-                Pending
-            </label>
-			<label class="checkbox-label pull-right">
-                <input id="filterAccepted" class="ember-view ember-checkbox" type="checkbox" name="filterAccepted" checked="checked" value="Accepted">
-                Accepted
-            </label>
-			<label class="checkbox-label pull-right">
-                <input id="filterDenied" class="ember-view ember-checkbox" type="checkbox" name="filterDenied" checked="checked" value="Denied">
-                Denied
-            </label>
-			<label class="checkbox-label pull-right">
-                <input id="filterRestarted" class="ember-view ember-checkbox" type="checkbox" name="filterRestarted" checked="checked" value="Restarted">
-                Restarted
-            </label>
-			<div class="date-filter">
-				Submitted between 
-				<input type="date" id="filterStartDate" name="filterStartDate"> and 
-				<input type="date" id="filterEndDate" name="filterEndDate">
-			</div>
+		<div class="reload-area">
+			<button id="reload" name="reload">Reload</button>
+			<button id="clear" name="clear">Clear</button>
 		</div>
 		<table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" id="dt">
 			<thead>
@@ -137,6 +117,7 @@ App.ApplicationView = Ember.View.extend({
 	didInsertElement: function() {
 		datatable = $('#dt').dataTable( {
 			"bProcessing": true,
+			//"bServerSide": true,
 			"sAjaxSource": "../libs/DataTables-1.9.4//examples/ajax/sources/erx.txt",
 			"aoColumns": [
 				{ "mData": "dateSubmitted" },
@@ -218,6 +199,10 @@ App.ApplicationView = Ember.View.extend({
 			return sOut;
 		}
 
+		function reload() {
+			alert('hai');
+		}
+
 		$('#dt tbody').on('click', 'tr', function () {
 			var nTr = this;
 			if ( datatable.fnIsOpen(nTr) )
@@ -230,51 +215,21 @@ App.ApplicationView = Ember.View.extend({
 			}
 		} );
 
-		function refilter(criteria) {
-			// Clear old filter
-			datatable.fnFilter('');
-			// {string}: String to filter the table on
-			// {int|null}: Column to limit filtering to
-			// {bool} [default=false]: Treat as regular expression or not
-			// {bool} [default=true]: Perform smart filtering or not
-			// {bool} [default=true]: Show the input global filter in it's input box(es)
-			// {bool} [default=true]: Do case-insensitive matching (true) or not (false)
-			datatable.fnFilter(criteria, null, true, true, false, true);
-		}
-
-		$('.filters input[type="checkbox"]').on('change', function() {
-
-			// Start of a regular expression
-			var filterCriteria = '';
-			// Concatenate all the values of the checked check boxes
-			$('.filters input[type="checkbox"]:checked').each(function() {
-				filterCriteria += this.value + "|";
-			});
-
-			if(filterCriteria) {
-				// Make into proper regular expression, remove the trailing pipe character
-				filterCriteria = '(' + filterCriteria.substring(0,filterCriteria.length-1) + ')';
-				console.log('filterCriteria = ' + filterCriteria);
-				refilter(filterCriteria);
-			}
+		$('.table-area #reload').on('click', function () {
+			 $.getJSON( "../libs/DataTables-1.9.4//examples/ajax/sources/erx2.txt" )
+				.done(function( json ) {
+					datatable.fnAddData(json.aaData);
+				})
+				.fail(function( jqxhr, textStatus, error ) {
+				  var err = textStatus + ', ' + error;
+				  console.log( "Request Failed: " + err);
+				});
 		});
 
-		$('.filters input[type="date"]').on('change', function() {
-
-			// Start of a regular expression
-			var filterCriteria = '';
-			// Concatenate all the values of the checked check boxes
-			$('.filters input[type="checkbox"]:checked').each(function() {
-				filterCriteria += this.value + "|";
-			});
-
-			if(filterCriteria) {
-				// Make into proper regular expression, remove the trailing pipe character
-				filterCriteria = '(' + filterCriteria.substring(0,filterCriteria.length-1) + ')';
-				console.log('filterCriteria = ' + filterCriteria);
-				datatable.fnFilter(filterCriteria, null, true, true, false, true);
-			}
+		$('.table-area #clear').on('click', function () {
+			datatable.fnClearTable();
 		});
+
 
 	}
 
