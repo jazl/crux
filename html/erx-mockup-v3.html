@@ -1,0 +1,99 @@
+<html>
+<head>
+	<title>eRx Verification</title>
+	<meta name="description" content="Ember w/ DataTable plug-in (jQuery style). Alternate way of initializing columns. Applying initializations programmatically">
+    <meta name="keywords" content="DataTable,fnFilter">
+    <link rel="stylesheet" href="../css/bootstrap.css">
+    <link rel="stylesheet" href="../css/DT_bootstrap.css">
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/rc6/handlebars.js"></script>
+	<script src="../libs/rc6/ember-1.0.0-rc.6.js"></script>
+	<script src="../libs/DataTables-1.9.4/media/js/jquery.dataTables.js"></script>
+	<script src="../libs/DT_bootstrap.js"></script>
+	<style>
+		body{
+			padding:15px 15px;
+		}
+		.table-area{
+			padding:15px 15px;
+		}
+	</style>
+</head>
+<body>
+	<script type="text/x-handlebars">
+		<div class="table-area">
+		<table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" id="dt">
+			<thead>
+				<tr>
+					<th>Date Submitted</th>
+					<th>First Name</th>
+					<th>Last Name</th>
+					<th>Practice Id</th>
+					<th>User Id</th>
+					<th>Status</th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+		</div>
+	</script>	
+</body>
+<script>
+
+var App = Ember.Application.create({});
+
+App.ApplicationView = Ember.View.extend({
+	datatable: null,
+	didInsertElement: function() {
+		datatable = $('#dt').dataTable( {
+			"bProcessing": true,
+			//"bServerSide": true,
+			"sAjaxSource": "../libs/DataTables-1.9.4/examples/ajax/sources/erx.txt",
+			"aoColumns": [
+				{ "mData": "dateSubmitted", "sTitle": "Date Submitted" },
+				{ "mData": "firstName", "sTitle": "First Name" },
+				{ "mData": "lastName", "sTitle": "Last Name" },
+				{ "mData": "practiceIdentifier", "sTitle": "Practice Id" },
+				{ "mData": "userName", "sTitle": "User Id" },
+				{ "mData": "verificationStatus", "sTitle": "Status" },
+				{ "mData": "middleInitial", "bSortable":false, "bVisible":false },
+				{ "mData": "suffixOption", "bSortable":false, "bVisible":false },
+				{ "mData": "officePhone", "bSortable":false, "bVisible":false },
+				{ "mData": "email", "bSortable":false, "bVisible":false },
+				{ "mData": "address1", "bSortable":false, "bVisible":false },
+				{ "mData": "address2", "bSortable":false, "bVisible":false },
+				{ "mData": "city", "bSortable":false, "bVisible":false },
+				{ "mData": "state", "bSortable":false, "bVisible":false },
+				{ "mData": "postalCode", "bSortable":false, "bVisible":false },
+				{ "mData": "SSN", "bSortable":false, "bVisible":false },
+				{ "mData": "dateOfBirth", "bSortable":false, "bVisible":false },
+				{ "mData": "NPI", "bSortable":false, "bVisible":false },
+				{ "mData": "medicalLicenseNumber", "bSortable":false, "bVisible":false },
+				{ "mData": "medicalLicenseExpirationDate", "bSortable":false, "bVisible":false },
+				{ "mData": "medicalLicenseStateProvince", "bSortable":false, "bVisible":false },
+				{ "mData": "medicalLicenseSpecialtyDegree", "bSortable":false, "bVisible":false }
+			]
+		} );
+	}
+});
+
+</script>
+</html>
+

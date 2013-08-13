@@ -71,9 +71,25 @@
 <body>
 	<script type="text/x-handlebars">
 		<div class="table-area">
-		<div class="reload-area">
-			<button id="reload" name="reload">Reload</button>
-			<button id="clear" name="clear">Clear</button>
+		<div class="filters">
+			<span class="filters-text">Show records with status of</span>
+			<label class="checkbox-label pull-right">
+                <input id="filterPending" class="ember-view ember-checkbox" type="checkbox" name="filterPending" checked="checked" value="Pending">
+                Pending
+            </label>
+			<label class="checkbox-label pull-right">
+                <input id="filterAccepted" class="ember-view ember-checkbox" type="checkbox" name="filterAccepted" checked="checked" value="Accepted">
+                Accepted
+            </label>
+			<label class="checkbox-label pull-right">
+                <input id="filterDenied" class="ember-view ember-checkbox" type="checkbox" name="filterDenied" checked="checked" value="Denied">
+                Denied
+            </label>
+			<div class="date-filter">
+				Submitted between 
+				<input type="date" id="filterStartDate" name="filterStartDate"> and 
+				<input type="date" id="filterEndDate" name="filterEndDate">
+			</div>
 		</div>
 		<table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" id="dt">
 			<thead>
@@ -118,7 +134,7 @@ App.ApplicationView = Ember.View.extend({
 		datatable = $('#dt').dataTable( {
 			"bProcessing": true,
 			//"bServerSide": true,
-			"sAjaxSource": "../libs/DataTables-1.9.4//examples/ajax/sources/erx.txt",
+			"sAjaxSource": "../libs/DataTables-1.9.4/examples/ajax/sources/erx.txt",
 			"aoColumns": [
 				{ "mData": "dateSubmitted" },
 				{ "mData": "firstName" },
@@ -199,8 +215,17 @@ App.ApplicationView = Ember.View.extend({
 			return sOut;
 		}
 
-		function reload() {
-			alert('hai');
+		function reload(status) {
+			var url = "../libs/DataTables-1.9.4/examples/ajax/sources/erx-"+status+".txt";
+			console.log("reloading data from url: "+url);
+			 $.getJSON(url)
+				.done(function( json ) {
+					datatable.fnAddData(json.aaData);
+				})
+				.fail(function( jqxhr, textStatus, error ) {
+				  var err = textStatus + ', ' + error;
+				  console.log( "Request Failed: " + err);
+				});
 		}
 
 		$('#dt tbody').on('click', 'tr', function () {
@@ -215,22 +240,12 @@ App.ApplicationView = Ember.View.extend({
 			}
 		} );
 
-		$('.table-area #reload').on('click', function () {
-			 $.getJSON( "../libs/DataTables-1.9.4//examples/ajax/sources/erx2.txt" )
-				.done(function( json ) {
-					datatable.fnAddData(json.aaData);
-				})
-				.fail(function( jqxhr, textStatus, error ) {
-				  var err = textStatus + ', ' + error;
-				  console.log( "Request Failed: " + err);
-				});
-		});
-
-		$('.table-area #clear').on('click', function () {
+		$('.filters input[type="checkbox"]').on('change', function() {
 			datatable.fnClearTable();
+			if(this.checked) {
+				reload(this.value.toLowerCase());
+			}
 		});
-
-
 	}
 
 })
