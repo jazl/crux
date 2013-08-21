@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<head>
+	<title>X Uploadify</title>
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/rc6/handlebars.js"></script>
+	<script src="../libs/rc6/ember-1.0.0-rc.6.js"></script>
+	<script src="../libs/Uploadify/jquery.uploadify.js"></script>
+
+	<style>
+	.viewclass {
+		width:150px;
+		height:150px;
+		background-color: green;
+	}
+	.import-button {
+	    width: 250px;
+	    white-space: nowrap;
+	}
+	</style>
+</head>
+<body>
+	<h4>Uploadify</h4>
+	<i>Uploading</i>
+	<p></p>
+
+	<script type="text/x-handlebars" id="upload">
+	    <div id="uploaderDiv">
+	        (Uploadify)
+	    </div>
+		<p></p>Upload messages
+        <br/><span id="uploadMessage"></span>
+        <br/><span id="files"></span>
+        <br/>
+        <div id="progress" class="progress progress-success progress-striped">
+            <div class="bar"></div>
+        </div>
+    </script>
+
+	<script type="text/x-handlebars" id="index">
+		App.UploadView is rendered below:
+		<br/>{{ view App.UploadView }}
+	</script>
+
+	<script>
+
+		var App = Ember.Application.create({
+			LOG_TRANSITIONS: true
+		});
+
+		App.UploadView = Ember.View.extend({
+			templateName: 'upload',
+			didInsertElement: function() {
+				console.log("In UploadView didInsertElement...");
+	            Ember.run.scheduleOnce('afterRender', this, 'setupUploader');
+			},
+
+	        handleUploadResult: function(file, data, response) {
+
+	        	console.log("handleUploadResult, file = " + file);
+	        	console.log("handleUploadResult, data = " + data);
+	        	console.log("handleUploadResult, response = " + response);
+
+	            var msg = "Unknown error. Return code: " + data;
+	            // Handle the various errors that form upload can return
+	            if(data === "01"){
+	                msg = "Practice identifier or upload guid is missing.";
+	            }
+	            else if(data === "02"){
+	                msg = "Invalid upload guid.";
+	            }
+	            else if (msg === "03") {
+	                msg = "Practice identifier is not a string.";
+	            }
+	            else if (msg === "06") {
+	                msg = "Upload content length was zero.";
+	            }
+	            else if (msg === "07") {
+	                msg = "File exceeds the maximum size allowed.";
+	            }
+	            else if (msg === "08") {
+	                msg = "Attempting to uplod more than 1 file.";
+	            }
+	            $("#uploadMessage").text(msg);
+	        },
+
+	        setupUploader: function() {
+	            $("#uploaderDiv").uploadify({
+	                'swf': '../libs/Uploadify/uploadify.swf',
+	                'cancelImg': '../libs/Uploadify/uploadify-cancel.png',
+	                'buttonText': 'Select file for upload',
+	                'buttonClass': 'btn btn-primary import-button',
+	                'uploader': '/DemographicsUpload/FlexUploadDemographics.aspx',
+	                'fileTypeExts': '*.xls;*.xlsx;*.xlm;*.csv;*.pdf;*.txt;*.zip;*.adt;*.dat;*.dbf;*.bak;*.asc',
+	                'formData': {
+						"practiceIdentifier": "firsttimepracti",
+						"upid": "5666ef7e85f04f7fa27a3d31abb52165"
+	                },
+	                'multi': false,
+	                'auto': true,
+	                'width': 150,
+	                'onUploadSuccess': this.handleUploadResult
+	            });
+	        }
+
+		})
+	</script>
+</body>
+</html>
+

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<head>
+	<title>Cnfgrtr</title>
+	<link rel="stylesheet" href="../css/bootstrap.css">
+	<link rel="stylesheet" href="../libs/jQuery-upload/css/jquery.fileupload-ui.css">
+
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/rc6/handlebars.js"></script>
+	<script src="../libs/rc6/ember-1.0.0-rc.6.js"></script>
+	
+	<script src="../libs/jQuery-upload/vendor/jquery.ui.widget.js"></script>
+	<script src="../libs/jQuery-upload/jquery.iframe-transport.js"></script>
+	<script src="../libs/jQuery-upload/jquery.fileupload.js"></script>
+
+	<style>
+	.viewclass {
+		width:150px;
+		height:150px;
+		background-color: green;
+	}
+	.import-button {
+	    width: 250px;
+	    white-space: nowrap;
+	}
+	</style>
+</head>
+<body>
+	<h4>Configurator Upload</h4>
+
+	<script type="text/x-handlebars" id="upload">
+		{{controller}}
+        <form id="fileuploadForm" enctype="multipart/form-data">
+            {{ view App.ValidatingTextField valueBinding="practiceIdentifier" name="practiceIdentifier"}}
+            {{ view App.ValidatingTextField valueBinding="upid" name="upid"}}
+            {{#if uploadFileName}}
+                <div id="uploadedFileDiv" class="uploaded-file-container" >
+                    <span {{ bindAttr class="hasUploadError :uploadFileName :control-group"}}>
+                        {{uploadFileName}}&nbsp;<a id="removeFileLink" name="removeFileLink" href="#">x</a>
+                        {{#if hasUploadError}}
+                        <label for="removeFileLink" class="error" style="margin-left:25px;padding-right:10px;"><span id="uploadMessage" class="remove-file-error-message">{{uploadErrorMessage}}</span></label>
+                        {{/if}}
+                    </span>
+                </div>
+            {{/if}}
+            <span id="fileUploadButton" {{bindAttr class="hideUploadButton :btn :btn-primary :fileinput-button"}} >
+                <span>Select file for upload</span>
+                <!-- The file input field used as target for the file upload widget -->
+                <input id="fileupload" type="file" name="files[]" multiple>
+            </span>
+        </form>
+        <span id="uploadMessage"></span>
+        <span id="files"></span>
+        <hr/>
+    </script>
+
+	<script type="text/x-handlebars" id="index">
+		App.UploadView is rendered below:
+		<br/>{{ render App.UploadView }}
+	</script>
+
+	<script>
+
+	var App = Ember.Application.create({
+		LOG_TRANSITIONS: true
+	});
+
+    App.ValidatingTextField = Ember.TextField.extend({
+        attributeBindings: [ 'name', 'data-validation-group' , 'autocomplete']
+    });
+
+	App.ApplicationRoute = Ember.Route.extend({
+		model: function() {
+			return Ember.Object.create({
+				"practiceIdentifier": "firsttimepracti",
+				"upid": "5666ef7e85f04f7fa27a3d31abb52165",
+				"uploadFileName": null
+			})
+		},
+		events: {
+			fileWasUploaded: function() {
+				alert('hai!!' + this.controllerFor('application'));
+				var ctl = this.controllerFor('application');
+				ctl.set('model.uploadFileName', 'route.xls');
+			}
+		}
+	});
+
+	App.ApplicationController = Ember.ObjectController.extend({
+		fileUploaded: function() {
+			alert('hai from controller!');
+			this.set('model.uploadFileName', 'controller.csv');
+		},
+		removeFile: function() {
+			return this.set('model.uploadFileName', null);
+		}
+	});
+
+	App.ApplicationView = Ember.View.extend({
+        view: null,
+        templateName: "upload",
+
+        click: function(evt) {
+            var targetName = $(evt.target).attr('name');
+            if(targetName==="removeFileLink") {
+                evt.preventDefault();
+                App.log.debug("ConfiguratorPatientimportView removeFile");
+                view.initializeUploadState();
+            }
+            else if(targetName==="importLater") {
+                if($('#importLater').is(':checked')) {
+                    // Allow user to proceed to next screen
+                    $('body').trigger('PRACTICE.ALL_REQUIRED_FIELDS_ENTERED');
+                }
+                else{
+                    // Disable save button. User must upload a file before proceeding
+                    $('body').trigger('PRACTICE.DISALLOW_FORWARD');
+                }
+            }
+        },
+
+        didInsertElement: function() {
+            // Save reference to view for later
+            view = this;
+            showModal();
+            // Override the form header
+            $('#formHeader').text(this.controller.formHeader);
+
+            $('input[name=practiceIdentifier]').hide();
+            $('input[name=upid]').hide();
+
+            // Attach form handlers for the container (index view)
+            App.attachFormHandlers();
+
+            // Call function to set up the jQuery upload plug-in
+            Ember.run.scheduleOnce('afterRender', this, 'setupJQUploader');
+
+            view.initializeUploadState();
+        },
+
+        willDestroyElement: function() {
+            // Remove the form handlers from the parent view
+            App.detachFormHandlers();
+        },
+
+        initializeUploadState: function() {
+            var controller = view.get('controller');
+            controller.set('model.uploadFileName', null);
+            controller.set('hasUploadError', false);
+            // Set initial disabled state
+            $('body').trigger('PRACTICE.ALL_REQUIRED_FIELDS_ENTERED');
+            $('body').trigger('PRACTICE.DISALLOW_FORWARD');
+        },
+
+        // Checks the results of the server-side call and sets
+        // the form state to display errors if necessary
+        handleUploadResult: function(file, data, response) {
+            var result = data.result;
+            var fileName = data.files[0].name;
+            var msg = "File uploading was not successful. Please try again later.";
+
+            view.spin(false);
+
+            // Server was never reached
+            if (result === undefined) {
+                if (!data.jqXHR) {
+                    view.get('controller').set('hasUploadError', true);
+                    view.get('controller').set('uploadErrorMessage', msg);
+                    return;
+                }
+                // IE does it this way
+                result = data.jqXHR.responseText;
+            }
+
+            // Server was reached and returned results
+            if (result.trim().length === 0 || result.lastIndexOf("</html>") > -1) {
+                // Empty content was returned, so no errors found
+                $('#uploadedFileName').text(fileName);
+                App.log.debug("Got uploadFileName from model after set = " + view.get('controller').get('model.uploadFileName'));
+                $('body').trigger('PRACTICE.ALL_REQUIRED_FIELDS_ENTERED');
+            }
+            else {
+                // String or numeric value was returned
+                if (parseInt(result) > 0) {
+                    if(result === "01"){
+                        msg = "Practice identifier or upload guid is missing.";
+                    }
+                    else if(result === "02"){
+                        msg = "Invalid upload guid.";
+                    }
+                    else if (result === "03") {
+                        msg = "Practice identifier is not a string.";
+                    }
+                    else if (result === "04") {
+                        msg = "Upload ID cannot be verified.";
+                    }
+                    else if (result === "06") {
+                        msg = "Upload content length was zero.";
+                    }
+                    else if (result === "07") {
+                        msg = "File exceeds the maximum size allowed.";
+                    }
+                    else if (result === "08") {
+                        msg = "Attempting to uplod more than 1 file.";
+                    }
+                }
+                else {
+                    // Endpoint is a web form, so html content might be returned!
+                    msg = "Got response from server: " + result;
+                }
+
+                view.get('controller').set('hasUploadError', true);
+                view.get('controller').set('uploadErrorMessage', msg);
+                $('body').trigger('PRACTICE.DISALLOW_FORWARD');
+            }
+        },
+
+        setProgress: function(e, data) {
+            App.log.debug("PRACTICE: setting progress...");
+        },
+
+        // Code to disable the dialog and show a spinner
+        // TODO: this should be a standard component
+        spin: function(show) {
+            // var $main = $('#configuratorDialog');
+            // if($main){
+            //     $main.spin(show);
+            //     $main.prop('disabled', show);
+            //     if (show) {
+            //         $('#dSpinner').show();
+            //     } else {
+            //         $('#dSpinner').hide();
+            //     }
+            // }
+        },
+
+        // "submit" is called immediately after the user selects a file to upload. This function hooks
+        // into that event and performs validation. Currently the only two conditions which are
+        // checked are file extensions and file size.
+        // TODO: use the plug-in's validation extensions and remove manual validation
+        handleSubmit: function(e, data) {
+            App.log.debug("PRACTICE: in fileuploadsubmit...");
+
+            // Disables navigation button while all this is going on
+            $('body').trigger('PRACTICE.NOT_ALL_REQUIRED_FIELDS_ENTERED');
+            // Unchecks the "import later" checkbox
+            view.get('controller').set('importLater', false);
+
+            var allowedExt = ['xls','xlsx','xlm','csv','pdf','txt','zip','adt','dat','dbf','bak','asc'];
+            // TODO: this needs to stay in sync w/ max file size defined in service
+            var sizeInMB = 30;
+            var maxSize = 1024 * 1024 * sizeInMB;
+            //var maxSize = 1024 * 2;
+
+            // Either of the following blocks can return "false" to cancel the upload
+
+            var file = data.files[0];
+            if (file.name){
+                view.get('controller').set('model.uploadFileName', file.name);
+                var ext = file.name.substring(file.name.lastIndexOf('.') + 1);
+                App.log.debug("PRACTICE: extension = " + ext);
+                if($.inArray(ext.toLowerCase(), allowedExt) === -1){
+                    App.log.debug("PRACTICE: Unsupported file, ext = " + ext);
+                    view.get('controller').set('hasUploadError', true);
+                    view.get('controller').set('uploadErrorMessage', "Not a supported file type");
+                    return false;
+                }
+            }
+
+            if (file.size){
+                App.log.debug("PRACTICE: Validating file size");
+                if(file.size > maxSize) {
+                    App.log.debug("PRACTICE: File exceeds max size of " + maxSize + ", size = " + file.size);
+                    view.get('controller').set('hasUploadError', true);
+                    view.get('controller').set('uploadErrorMessage', "File cannot be larger than " + sizeInMB + " MB");
+                    return false;
+                }
+            }
+            else{
+                // Some lesser-capable browsers do not expose size, so validation
+                // will be left to the server-side
+                App.log.debug("PRACTICE: No size available...");
+            }
+
+            // If we got this far, we will try to submit the file.
+            // Set the spinner to provide the user with some feedback.
+            view.spin(true);
+
+            // Return true here to indicate that it is OK to start upload
+            return true;
+        },
+
+        // Hook the upload plug-in into the form's file input element
+        setupJQUploader: function() {
+            App.log.debug("PRACTICE: setting up JQuery uploader");
+            // Hook the upload plug-in into the form's file input element
+            var view = this;
+            var $fu = $('#fileupload');
+
+            // Get unique identifier for post
+            var demodata = dal.GetData(config.practiceConfiguratorBaseURL + 'PracticeSetup/DemographicIdentifier');
+            view.get('controller').set('model.upid', demodata.uniqueId);
+            App.log.debug("Set upid to " + demodata.uniqueId);
+            App.log.debug("config.practicePatientImportURL = " + config.practicePatientImportURL);
+
+            $fu.fileupload({
+                // NOTE: set to false for IE10!!
+                forceIframeTransport: false,
+                //autoUpload: false,    //  trigger the upload right away
+                url: config.practicePatientImportURL,
+                // NOTE: upload endpoint is not a proper REST service, so we're
+                // dealing with html & text return values here
+                dataType: 'text',
+                done: this.handleUploadResult,
+                progress: this.setProgress,
+                submit: this.handleSubmit,
+                fail: this.handleUploadResult
+            });
+        }
+    });
+
+	// STUBBED OUT VERSIONS OF CONFIGURATOR OBJECTS
+	var showModal = function() {};
+    App.attachFormHandlers = function() {};
+	var config = { practiceConfiguratorBaseURL:"/DemographicsUpload/FlexUploadDemographics.aspx" };
+	App.log = { debug:function(msg){ console.log('>>>>>>>>>>>>> '+msg); } };
+	var dal = { GetData:function() { return { uniqueId: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' } } };
+
+	</script>
+</body>
+</html>
+
