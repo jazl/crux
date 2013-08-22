@@ -29,112 +29,151 @@
 		outlet:<br/>{{outlet}}
 	</script>
 
+	<script type="text/x-handlebars" id="configurator">
+		configurator outlet<br/>{{outlet}}
+	</script>
+
 	<script type="text/x-handlebars" id="upload">
 		{{controller}}
-    <div class="import-box">
-        <table class="import-table">
-            <tr>
-                <td colspan="2">
-                    You can import patients from your existing practice management, scheduling or billing system
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <span class="import-listheader">1.</span>
-                </td>
-                <td>
-                    <span class="import-listheader">Export your patient demographics information</span><br/>
-                    Contact our support team for help exporting patients from your existing system
-                </td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>
-                    <span class="import-listheader">2.</span>
-                </td>
-                <td>
-                    <span class="import-listheader">Upload your file</span><br/>
-                    <table>
-                        <tr>
-                            <td>
-                                <i>Your file should have...</i>
-                            </td>
-                            <td>
-                                <i style="margin:40px;">Accepted files:</i>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding-left:25px;">
-                                <ul>
-                                    <li>A spreadsheet format (i.e. Excel)</li>
-                                    <li>One row per patient</li>
-                                    <li>A header row (Name, Phone #...)</li>
-                                    <li>At least 50 patients</li>
-                                </ul>
-                            </td>
-                            <td style="padding-left:45px;">
-                                xls, xlsx, xlm, csv, pdf, txt,<br/>
-                                zip, adt, dat, dbf, bak, asc<p></p>
-                                <a {{ bindAttr href="sampleFileName" }} id="downloadSample" target="_blank">Download an example file >></a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="2">
-                                <form id="fileuploadForm" enctype="multipart/form-data">
-                                    {{ view App.ValidatingTextField valueBinding="practiceIdentifier" name="practiceIdentifier"}}
-                                    {{ view App.ValidatingTextField valueBinding="upid" name="upid"}}
-                                    {{#if uploadFileName}}
-                                        <div id="uploadedFileDiv" class="uploaded-file-container" >
-                                            <span {{ bindAttr class="hasUploadError :uploadFileName :control-group"}}>
-                                                {{uploadFileName}}&nbsp;<a id="removeFileLink" name="removeFileLink" href="#">x</a>
-                                                {{#if hasUploadError}}
-                                                <label for="removeFileLink" class="error" style="margin-left:25px;padding-right:10px;"><span id="uploadMessage" class="remove-file-error-message">{{uploadErrorMessage}}</span></label>
-                                                {{/if}}
-                                            </span>
-                                        </div>
-                                    {{/if}}
-                                    <span id="fileUploadButton" {{bindAttr class="hideUploadButton :btn :btn-primary :fileinput-button"}} >
-                                        <span>Select file for upload</span>
-                                        <!-- The file input field used as target for the file upload widget -->
-                                        <input id="fileupload" type="file" name="files[]" multiple>
-                                    </span>
-                                </form>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>
-                    <span class="import-listheader">3.</span>
-                </td>
-                <td>
-                    <span class="import-listheader">We''ll finish the job for free</span><br/>
-                    We''ll complete your import within 5-7 business days and email you when it''s ready
-                </td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td colspan="2" style="margin-left:0px;">
-                    <label name="importLaterLabel" {{bindAttr class="hideUploadButton :checkbox-label :import-later"}} >
-                        
-                        Import patients later
-                    </label>
-                </td>
-            </tr>
+		<div id="embermain" class="ember-application">
+		            <div id="clinical"></div>
+		        <div id="ember998" class="ember-view">
+		            <script id="metamorph-0-start" type="text/x-placeholder"></script><script id="metamorph-3-start" type="text/x-placeholder"></script>
+		    <script id="metamorph-5-start" type="text/x-placeholder"></script><script id="metamorph-4-start" type="text/x-placeholder"></script>
+		<div class="practice-modal">
+		    <div id="configuratorDialog" class="configurator-modal in" style="overflow: hidden; display: block;" aria-hidden="false">
+		        <div id="dSpinner" class="wide"></div>
+		         <button class="close" data-dismiss="modal" aria-hidden="true" data-ember-action="1">×</button>
+		         <div id="formHeader" class="pracman-title">Import your patient demographics</div>
+		         <div class="configurator-modal-body configurator-height">
+		            <div class="container-fluid">
+		                <div class="form-box pull-left">
+		                    <script id="metamorph-6-start" type="text/x-placeholder"></script><div id="ember1909" class="ember-view">
+		    <div class="import-box">
+		        <table class="import-table">
+		            <tbody><tr>
+		                <td colspan="2">
+		                    You can import patients from your existing practice management, scheduling or billing system
+		                </td>
+		            </tr>
+		            <tr>
+		                <td>
+		                    <span class="import-listheader">1.</span>
+		                </td>
+		                <td>
+		                    <span class="import-listheader">Export your patient demographics information</span><br>
+		                    Contact our support team for help exporting patients from your existing system
+		                </td>
+		            </tr>
+		            <tr>
+		                <td></td>
+		                <td></td>
+		            </tr>
+		            <tr>
+		                <td>
+		                    <span class="import-listheader">2.</span>
+		                </td>
+		                <td>
+		                    <span class="import-listheader">Upload your file</span><br>
+		                    <table>
+		                        <tbody><tr>
+		                            <td>
+		                                <i>Your file should have...</i>
+		                            </td>
+		                            <td>
+		                                <i style="margin:40px;">Accepted files:</i>
+		                            </td>
+		                        </tr>
+		                        <tr>
+		                            <td style="padding-left:25px;">
+		                                <ul>
+		                                    <li>A spreadsheet format (i.e. Excel)</li>
+		                                    <li>One row per patient</li>
+		                                    <li>A header row (Name, Phone #...)</li>
+		                                    <li>At least 50 patients</li>
+		                                </ul>
+		                            </td>
+		                            <td style="padding-left:45px;">
+		                                xls, xlsx, xlm, csv, pdf, txt,<br>
+		                                zip, adt, dat, dbf, bak, asc<p></p>
+		                                <a href="../html/practice/resources/samplefiles/ImportTemplate.csv" data-bindattr-12="12" id="downloadSample" target="_blank">Download an example file &gt;&gt;</a>
+		                            </td>
+		                        </tr>
+		                        <tr>
+		                            <td colspan="2">
+		                                <form id="fileuploadForm" enctype="multipart/form-data">
+		                                    <input id="ember1911" class="ember-view ember-text-field" type="text" name="practiceIdentifier" style="display: none;">
+		                                    <input id="ember1912" class="ember-view ember-text-field" type="text" name="upid" style="display: none;">
+		                                    <script id="metamorph-763-start" type="text/x-placeholder"></script><script id="metamorph-763-end" type="text/x-placeholder"></script>
+		                                    <span id="fileUploadButton" class="btn btn-primary fileinput-button" data-bindattr-13="13">
+		                                        <span>Select file for upload</span>
+		                                        <!-- The file input field used as target for the file upload widget -->
+		                                        <input id="fileupload" type="file" name="files[]" multiple="">
+		                                    </span>
+		                                </form>
+		                            </td>
+		                        </tr>
+		                    </tbody></table>
+		                </td>
+		            </tr>
+		            <tr>
+		                <td></td>
+		                <td></td>
+		            </tr>
+		            <tr>
+		                <td>
+		                    <span class="import-listheader">3.</span>
+		                </td>
+		                <td>
+		                    <span class="import-listheader">We'll finish the job for free</span><br>
+		                    We'll complete your import within 5-7 business days and email you when it's ready
+		                </td>
+		            </tr>
+		            <tr>
+		                <td></td>
+		                <td></td>
+		            </tr>
+		            <tr>
+		                <td colspan="2" style="margin-left:0px;">
+		                    <label name="importLaterLabel" class="checkbox-label import-later" data-bindattr-14="14">
+		                        <input id="importLater" class="ember-view ember-checkbox" type="checkbox" name="importLater">
+		                        Import patients later
+		                    </label>
+		                </td>
+		            </tr>
 
-        </table>
-    </div>
+		        </tbody></table>
+		    </div>
+		</div>
+		<script id="metamorph-6-end" type="text/x-placeholder"></script>
+
+		                    <div class="button-box">
+		                         <script id="metamorph-732-start" type="text/x-placeholder"></script>
+		                         <button id="configurator-backButton" class="pull-left button-link" data-ember-action="9">&lt;&lt; back</button>
+		                         <script id="metamorph-732-end" type="text/x-placeholder"></script>
+		                         <script id="metamorph-733-start" type="text/x-placeholder"></script>
+		                         <button id="configurator-saveButton" class="btn btn-primary pull-right" data-ember-action="2" disabled="disabled">Save and continue &gt;&gt;</button>
+		                         <script id="metamorph-733-end" type="text/x-placeholder"></script>
+		                    </div>
+
+		                </div>
+
+		                
+		    <div id="practiceCreds" class="practice-creds pull-right" style="display: block;">
+		        <div class="blue">
+		            Practice ID: <script id="metamorph-734-start" type="text/x-placeholder"></script><script id="metamorph-734-end" type="text/x-placeholder"></script> <br>
+		            Username: <script id="metamorph-735-start" type="text/x-placeholder"></script>Dr. Tester<script id="metamorph-735-end" type="text/x-placeholder"></script>
+		        </div>
+		        <div class="grey">
+		            Check your email for a record of your login information
+		        </div>
+		    </div>
+
+		            </div>
+		        </div>
+		    </div>
+		</div>
+
     </script>
 
 	<script>
