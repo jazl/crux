@@ -25,50 +25,146 @@
 	</style>
 </head>
 <body>
-	<h4>Configurator Upload</h4>
+	<script type="text/x-handlebars">
+		outlet:<br/>{{outlet}}
+	</script>
 
 	<script type="text/x-handlebars" id="upload">
 		{{controller}}
-        <form id="fileuploadForm" enctype="multipart/form-data">
-            {{ view App.ValidatingTextField valueBinding="practiceIdentifier" name="practiceIdentifier"}}
-            {{ view App.ValidatingTextField valueBinding="upid" name="upid"}}
-            {{#if uploadFileName}}
-                <div id="uploadedFileDiv" class="uploaded-file-container" >
-                    <span {{ bindAttr class="hasUploadError :uploadFileName :control-group"}}>
-                        {{uploadFileName}}&nbsp;<a id="removeFileLink" name="removeFileLink" href="#">x</a>
-                        {{#if hasUploadError}}
-                        <label for="removeFileLink" class="error" style="margin-left:25px;padding-right:10px;"><span id="uploadMessage" class="remove-file-error-message">{{uploadErrorMessage}}</span></label>
-                        {{/if}}
-                    </span>
-                </div>
-            {{/if}}
-            <span id="fileUploadButton" {{bindAttr class="hideUploadButton :btn :btn-primary :fileinput-button"}} >
-                <span>Select file for upload</span>
-                <!-- The file input field used as target for the file upload widget -->
-                <input id="fileupload" type="file" name="files[]" multiple>
-            </span>
-        </form>
-        <span id="uploadMessage"></span>
-        <span id="files"></span>
-        <hr/>
-    </script>
+    <div class="import-box">
+        <table class="import-table">
+            <tr>
+                <td colspan="2">
+                    You can import patients from your existing practice management, scheduling or billing system
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="import-listheader">1.</span>
+                </td>
+                <td>
+                    <span class="import-listheader">Export your patient demographics information</span><br/>
+                    Contact our support team for help exporting patients from your existing system
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="import-listheader">2.</span>
+                </td>
+                <td>
+                    <span class="import-listheader">Upload your file</span><br/>
+                    <table>
+                        <tr>
+                            <td>
+                                <i>Your file should have...</i>
+                            </td>
+                            <td>
+                                <i style="margin:40px;">Accepted files:</i>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding-left:25px;">
+                                <ul>
+                                    <li>A spreadsheet format (i.e. Excel)</li>
+                                    <li>One row per patient</li>
+                                    <li>A header row (Name, Phone #...)</li>
+                                    <li>At least 50 patients</li>
+                                </ul>
+                            </td>
+                            <td style="padding-left:45px;">
+                                xls, xlsx, xlm, csv, pdf, txt,<br/>
+                                zip, adt, dat, dbf, bak, asc<p></p>
+                                <a {{ bindAttr href="sampleFileName" }} id="downloadSample" target="_blank">Download an example file >></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <form id="fileuploadForm" enctype="multipart/form-data">
+                                    {{ view App.ValidatingTextField valueBinding="practiceIdentifier" name="practiceIdentifier"}}
+                                    {{ view App.ValidatingTextField valueBinding="upid" name="upid"}}
+                                    {{#if uploadFileName}}
+                                        <div id="uploadedFileDiv" class="uploaded-file-container" >
+                                            <span {{ bindAttr class="hasUploadError :uploadFileName :control-group"}}>
+                                                {{uploadFileName}}&nbsp;<a id="removeFileLink" name="removeFileLink" href="#">x</a>
+                                                {{#if hasUploadError}}
+                                                <label for="removeFileLink" class="error" style="margin-left:25px;padding-right:10px;"><span id="uploadMessage" class="remove-file-error-message">{{uploadErrorMessage}}</span></label>
+                                                {{/if}}
+                                            </span>
+                                        </div>
+                                    {{/if}}
+                                    <span id="fileUploadButton" {{bindAttr class="hideUploadButton :btn :btn-primary :fileinput-button"}} >
+                                        <span>Select file for upload</span>
+                                        <!-- The file input field used as target for the file upload widget -->
+                                        <input id="fileupload" type="file" name="files[]" multiple>
+                                    </span>
+                                </form>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="import-listheader">3.</span>
+                </td>
+                <td>
+                    <span class="import-listheader">We''ll finish the job for free</span><br/>
+                    We''ll complete your import within 5-7 business days and email you when it''s ready
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="2" style="margin-left:0px;">
+                    <label name="importLaterLabel" {{bindAttr class="hideUploadButton :checkbox-label :import-later"}} >
+                        
+                        Import patients later
+                    </label>
+                </td>
+            </tr>
 
-	<script type="text/x-handlebars" id="index">
-		App.UploadView is rendered below:
-		<br/>{{ render App.UploadView }}
-	</script>
+        </table>
+    </div>
+    </script>
 
 	<script>
 
 	var App = Ember.Application.create({
-		LOG_TRANSITIONS: true
+		LOG_TRANSITIONS: true,
+		LOG_TRANSITIONS_INTERNAL: true
 	});
+
+
+	// STUBBED OUT VERSIONS OF CONFIGURATOR OBJECTS
+	var showModal = function() {};
+    App.attachFormHandlers = function() {};
+	var config = { practiceConfiguratorBaseURL:"/DemographicsUpload/FlexUploadDemographics.aspx" };
+	App.log = { debug:function(msg){ console.log('>>>>>>>>>>>>> '+msg); } };
+	var dal = { GetData:function() { return { uniqueId: 'zzzzzzzzzzzzzzz' } } };
 
     App.ValidatingTextField = Ember.TextField.extend({
         attributeBindings: [ 'name', 'data-validation-group' , 'autocomplete']
     });
 
-	App.ApplicationRoute = Ember.Route.extend({
+    App.Router.map(function(){
+        this.resource("practice", {path: "/practice"}, function () {
+            this.resource('configurator', { path: "configurator/:userId" }, function () {
+                this.route('patientimport', { path: "/patientimport" });
+            });
+        });
+    });
+
+	App.ConfiguratorPatientimportRoute = Ember.Route.extend({
 		model: function() {
 			return Ember.Object.create({
 				"practiceIdentifier": "firsttimepracti",
@@ -85,7 +181,7 @@
 		}
 	});
 
-	App.ApplicationController = Ember.ObjectController.extend({
+	App.ConfiguratorPatientimportController = Ember.ObjectController.extend({
 		fileUploaded: function() {
 			alert('hai from controller!');
 			this.set('model.uploadFileName', 'controller.csv');
@@ -95,7 +191,7 @@
 		}
 	});
 
-	App.ApplicationView = Ember.View.extend({
+	App.ConfiguratorPatientimportView = Ember.View.extend({
         view: null,
         templateName: "upload",
 
@@ -306,7 +402,7 @@
                 // NOTE: set to false for IE10!!
                 forceIframeTransport: false,
                 //autoUpload: false,    //  trigger the upload right away
-                url: config.practicePatientImportURL,
+                url: "/DemographicsUpload/FlexUploadDemographics.aspx",
                 // NOTE: upload endpoint is not a proper REST service, so we're
                 // dealing with html & text return values here
                 dataType: 'text',
@@ -317,13 +413,6 @@
             });
         }
     });
-
-	// STUBBED OUT VERSIONS OF CONFIGURATOR OBJECTS
-	var showModal = function() {};
-    App.attachFormHandlers = function() {};
-	var config = { practiceConfiguratorBaseURL:"/DemographicsUpload/FlexUploadDemographics.aspx" };
-	App.log = { debug:function(msg){ console.log('>>>>>>>>>>>>> '+msg); } };
-	var dal = { GetData:function() { return { uniqueId: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' } } };
 
 	</script>
 </body>
