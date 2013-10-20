@@ -1,0 +1,78 @@
+<html>
+<head>
+	<title>Ember-Data with models and form</title>
+	<meta name="description" content="demonstrates Ember Data application using models">
+	<meta name="keywords" content="ember-data,model,itemViewClass,Ember.View">
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/1.0/handlebars-1.0.0.js"></script>
+	<script src="../libs/1.0/ember-1.0.0.js"></script>
+	<script src="../libs/1.0/ember-model.js"></script>
+</head>
+<body>
+	
+  <script type="text/x-handlebars">
+    <h2>Welcome to Ember.js</h2>
+
+    {{outlet}}
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="index">
+    <ul>
+    {{#each item in model}}
+      <li>{{item.name}}</li>
+    {{/each}}
+    </ul>
+
+  {{input type="text" value=newName}}
+  <button {{action save}}>Save</button>
+  </script>
+
+</body>
+<script>
+App = Ember.Application.create();
+
+App.Router.map(function() {
+  // put your routes here
+});
+
+App.IndexController = Ember.ArrayController.extend({
+	save: function() {
+		var newPerson = App.Person.create({name: this.get('newName')});
+		newPerson.save();
+	}
+});
+
+App.IndexRoute = Ember.Route.extend({
+  model: function() {
+  	var ppl = 
+  		[
+  			{ id: 1, name: "Kate"}
+  		];
+    //return ppl;
+    return App.Person.find();
+  }
+});
+
+App.Person = Ember.Model.extend({
+	name: Ember.attr()
+});
+
+/*
+// TODO: why doesn't this work????
+App.Person.adapter = Ember.Adapter.create({
+	findAll: function(klass, records) {
+		console.log("calling find all!");	
+		$.getJSON("api/people.json").then(function(data){
+			records.load(klass, data.people);
+		});
+	}
+});
+*/
+
+App.Person.adapter = Ember.RESTAdapter.create();
+App.Person.url = "api/people";
+App.Person.collectionKey = "people";
+
+</script>
+</html>
+
