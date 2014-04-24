@@ -1,0 +1,24 @@
+<html>
+<head>
+	<title>DTS</title>
+	<script src="../libs/jquery-1.9.1.min.js"></script>
+	<script src="../libs/d3/d3.js" charset="utf-8"></script>
+</head>
+<body>
+	<h4>DeeThree</h4>
+	<svg>
+		<rect width="25" height="10" style="fill: pink" />
+	</svg>
+	<div id="rectdiv">
+	</div>
+	<script>
+		d3.select('body')
+		.append("svg")
+		.append("rect")
+			.attr("width",25)
+			.attr("height",10)
+			.style("fill","red");
+	</script>
+</body>
+</html>
+
